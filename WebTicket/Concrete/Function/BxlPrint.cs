@@ -30,6 +30,7 @@ namespace WebTicket.Concrete.Function
         [DllImport(BXLDIR, SetLastError = true, EntryPoint = "PrintBitmap")]
         public static extern Int32 PrintBitmap(string FileName, Int32 Width, Int32 Alignment, Int32 Level);
 
+
         [DllImport(BXLDIR, SetLastError = true, EntryPoint = "PrintBarcode")]
         public static extern Int32 PrintBarcode(byte[] Data, Int32 Symbology, Int32 Height, Int32 Width, Int32 Alignment, Int32 TextPosition);
 
