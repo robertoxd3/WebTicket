@@ -85,7 +85,7 @@ namespace WebTicket.Controllers
         [HttpGet("printInfo")]
         public bool printInfo()
         {
-            if ((BxlPrint.PrinterOpen("USB:001", 1000)) != BxlPrint.BXL_SUCCESS)
+            if ((BxlPrint.PrinterOpen("USB:001", 1000)) != BxlPrint.BXL_SUCCESS && (BxlPrint.PrinterOpen("COM4:19200", 1000) != BxlPrint.BXL_SUCCESS))
             {
                 System.Diagnostics.Debug.WriteLine("Fallo al conectar con bixolon");
                 return false;
@@ -126,7 +126,7 @@ namespace WebTicket.Controllers
         [HttpGet("printInfo2")]
         public bool printInfo2()
         {
-            if ((BxlPrint.PrinterOpen("USB:001", 1000)) != BxlPrint.BXL_SUCCESS)
+            if ((BxlPrint.PrinterOpen("USB:001", 1000)) != BxlPrint.BXL_SUCCESS && (BxlPrint.PrinterOpen("COM4:19200", 1000) != BxlPrint.BXL_SUCCESS))
             {
                 System.Diagnostics.Debug.WriteLine("Fallo al conectar con bixolon");
                 return false;
@@ -141,8 +141,8 @@ namespace WebTicket.Controllers
                 BxlPrint.PrintText("¿Quieres denunciar un acto de\n corrupción por parte de una\npersona trabajadora de la\nPROCURADURÍA? lo puedes hacer\npor las siguientes vías:\n\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
                
 
-                BxlPrint.PrintText("2231-9525 \n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-                BxlPrint.PrintText("7786-2058" + "\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
+                BxlPrint.PrintText("2231-9525\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
+                BxlPrint.PrintText("7786-2058\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
                 BxlPrint.PrintText("oficinadequejas@pgres.gob.sv\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
                 BxlPrint.PrintText("A través de link de quejas que\n está en el portal de la PGR \n\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
                 BxlPrint.PrintText("Luego una persona te va a\ncontactar para atender o dar\n respuesta a tu caso.", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);

@@ -76,8 +76,8 @@ namespace WebTicket.Concrete
             };
 
             var result = 0;
-           
-            if ((BxlPrint.PrinterOpen("USB:001", 1000)) != BxlPrint.BXL_SUCCESS)
+
+            if ((BxlPrint.PrinterOpen("USB:001", 1000)) != BxlPrint.BXL_SUCCESS && (BxlPrint.PrinterOpen("COM4:19200", 1000) != BxlPrint.BXL_SUCCESS))
             {
                 System.Diagnostics.Debug.WriteLine("Fallo al conectar con bixolon");
                 return false;
