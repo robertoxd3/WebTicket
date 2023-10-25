@@ -7,10 +7,10 @@ namespace WebTicket.Interface
     {
         //JsonModel LeerJson();
         List<Unidades> GetUnidades(JsonModel json);
-        bool CrearTicket(string codigoUnidad, int idFila, JsonModel json);
+        TicketImprimir CrearTicket(string codigoUnidad, int idFila, JsonModel json);
         List<TipoDeFila> GetTipodeFilas();
 
-        Ticket ImprimirTicket(string codigoUnidad, int idFila, JsonModel json);
+        TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json);
 
     }
 }

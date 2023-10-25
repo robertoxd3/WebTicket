@@ -14,6 +14,8 @@ namespace WebTicket.Concrete
 
         public DbSet<Ticket> Ticket { get; set; }
 
+        public DbSet<LlamadaTicket> LlamadaTicket { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pagaduria> ().HasKey(k => new { k.CodigoPagaduria });
@@ -21,7 +23,7 @@ namespace WebTicket.Concrete
             modelBuilder.Entity<Unidades>().HasKey(k => new { k.CodigoUnidades });
             modelBuilder.Entity<TipoDeFila>().HasKey(k => new { k.IdFila });
             modelBuilder.Entity<Ticket>().HasKey(k => new { k.IdTicket });
-
+            modelBuilder.Entity<LlamadaTicket>().HasKey(k => new { k.IdLlamadaTicket });
         }
     }
 }
