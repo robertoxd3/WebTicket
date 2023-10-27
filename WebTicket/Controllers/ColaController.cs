@@ -21,7 +21,7 @@ namespace WebTicket.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("sendDataAll")]
         public async Task<IActionResult> GetDataFromDatabaseAndSendToClients()
         {
             // Realizar la actualización en la base de datos
@@ -32,6 +32,7 @@ namespace WebTicket.Controllers
 
             return Ok();
         }
+
 
     }
 }

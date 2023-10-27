@@ -42,6 +42,6 @@ app.MapControllers();
 //    endpoints.MapControllers();
 //    endpoints.MapHub<Cola>("/Cola");
 //});
-
+app.UseWebSockets();
 
 app.Run();

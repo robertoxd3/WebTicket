@@ -80,7 +80,7 @@ namespace WebTicket.Concrete
                 var result = 0;
 
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
-          
+
                 if (result > 0)
                 {
                     //System.Diagnostics.Debug.WriteLine("VARIABLES: " + codigoUnidad+ " v2: "+idFila);
