@@ -52,14 +52,18 @@ namespace WebTicket.Concrete
 
         public List<TipoDeFila> GetTipodeFilas()
         {
-            return _context.TipoDeFila.Select(n => new TipoDeFila
-            {
-                IdFila = n.IdFila,
-                NombreFila = n.NombreFila,
-                Activo=n.Activo,
-                Letra=n.Letra,
-                Peso=n.Peso,
-            }).ToList();
+            return _context.TipoDeFila
+                .Where(n => n.Activo==true)
+                .Select(n => new TipoDeFila
+                {
+                    IdFila = n.IdFila,
+                    NombreFila = n.NombreFila,
+                    Activo = n.Activo,
+                    Letra = n.Letra,
+                    Peso = n.Peso,
+                })
+                .ToList();
+
         }
 
         public TicketImprimir CrearTicket(string codigoUnidad, int idFila, JsonModel json)
@@ -78,7 +82,7 @@ namespace WebTicket.Concrete
                 };
 
                 var result = 0;
-
+                System.Diagnostics.Debug.WriteLine("Param1: "+param1 +"\nParam2: "+param2);
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
 
                 if (result > 0)

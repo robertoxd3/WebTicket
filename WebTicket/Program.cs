@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using WebTicket.Concrete;
 using WebTicket.Interface;
 using WebTicket.Hubs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +12,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DatabaseContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
-builder.Services.AddControllers();
-builder.Services.AddScoped<ITicket, ApiTicketConcrete>();
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("pruebasecreta")),
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
+
+builder.Services.AddControllers();
+//Concretes
+builder.Services.AddScoped<ITicket, ApiTicketConcrete>();
+builder.Services.AddScoped<IJwtGenerate, ApiJwtConcrete>();
+builder.Services.AddScoped<IUsuarios, ApiUsuarioConcrete>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
