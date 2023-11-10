@@ -18,6 +18,8 @@ namespace WebTicket.Concrete
 
         public DbSet<SIS_Usuarios> SIS_Usuarios { get; set; }
 
+        public DbSet<OrdenPrioridadTicket> OrdenPrioridadTicket { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pagaduria> ().HasKey(k => new { k.CodigoPagaduria });
@@ -27,6 +29,7 @@ namespace WebTicket.Concrete
             modelBuilder.Entity<Ticket>().HasKey(k => new { k.IdTicket });
             modelBuilder.Entity<LlamadaTicket>().HasKey(k => new { k.IdLlamadaTicket });
             modelBuilder.Entity<SIS_Usuarios>().HasKey(k => new { k.CodigoUsuario });
+            modelBuilder.Entity<OrdenPrioridadTicket>().HasKey(k => new { k.IdOrden });
 
         }
     }

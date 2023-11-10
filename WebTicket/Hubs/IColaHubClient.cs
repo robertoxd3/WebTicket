@@ -2,6 +2,6 @@
 {
     public interface IColaHubClient
     {
-            Task SendOffersToUser(List<string> message);
+        Task SendOffersToUser(List<string> message);
     }
 }

@@ -36,7 +36,13 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ITicket, ApiTicketConcrete>();
 builder.Services.AddScoped<IJwtGenerate, ApiJwtConcrete>();
 builder.Services.AddScoped<IUsuarios, ApiUsuarioConcrete>();
-builder.Services.AddSignalR();
+
+builder.Services.AddSignalR(o =>
+{
+    o.EnableDetailedErrors = true;
+    o.MaximumReceiveMessageSize = 10240; // bytes
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -66,6 +72,8 @@ app.MapControllers();
 //    endpoints.MapControllers();
 //    endpoints.MapHub<Cola>("/Cola");
 //});
-app.UseWebSockets();
+//app.UseWebSockets();
+
+
 
 app.Run();

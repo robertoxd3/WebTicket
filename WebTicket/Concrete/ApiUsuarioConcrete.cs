@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 using WebTicket.Interface;
 
 namespace WebTicket.Concrete
@@ -12,22 +14,24 @@ namespace WebTicket.Concrete
             _context = context;
         }
 
-        public bool AuthenticateUsuario(string codigoUsuario,string claveUsuario)
+        public bool AuthenticateUsuario(string codigoUsuario, string claveUsuario)
         {
-            //var result = (from usuarios in _context.SIS_Usuarios
-            //              where usuarios.CodigoUsuario == codigoUsuario
-            //              select usuarios).Count();
-            var result = _context.Database.ExecuteSql($"SELECT CodigoUsuario, [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) as ClaveUsuario FROM [SIS_Usuarios] WHERE CodigoUsuario = '{codigoUsuario}' AND [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) = '{claveUsuario}';");
-            System.Diagnostics.Debug.WriteLine("Result: " + result);
+            var param1 = new SqlParameter("@CodigoUsuario", SqlDbType.NVarChar)
+            {
+                Value = codigoUsuario
+            };
 
-            //var sql = "SELECT CodigoUsuario, [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) as ClaveUsuario FROM SIS_Usuarios WHERE CodigoUsuario = 'DOESCOBARM' AND [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) = 'DO'";
+            var param2 = new SqlParameter("@ClaveUsuario", SqlDbType.NVarChar)
+            {
+                Value = claveUsuario
+            };
 
-            //var result = _context.SIS_Usuarios
-            //    .FromSqlRaw(sql)
-            //    .ToList();
+            var result = _context.SIS_Usuarios
+           .FromSqlRaw($"SELECT * FROM [SIS_Usuarios] WHERE CodigoUsuario = @CodigoUsuario AND [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) = @ClaveUsuario", param1, param2)
+           .ToList();
+            System.Diagnostics.Debug.WriteLine("Result2: " + result);
 
-            //var query = $"SELECT CodigoUsuario, [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) as ClaveUsuario FROM [SIS_Usuarios] WHERE CodigoUsuario = '{codigoUsuario}' AND [dbo].[SIS_FU_DesencriptarClave](ClaveUsuario) = '{claveUsuario}';";
-            return result > 0;
+            return result.Count() > 0;
         }
     }
 }

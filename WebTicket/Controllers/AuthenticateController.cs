@@ -34,14 +34,14 @@ namespace WebTicket.Controllers
                     value.Token = _jwtGenerate.CreateToken(value.CodigoUsuario);
                     value.ClaveUsuario = String.Empty;
                     value.PerfilUsuario = "";
-
+                    
                     return new HttpResult(value, HttpStatusCode.OK);
                 }
 
-                return new HttpError(HttpStatusCode.BadRequest, "�El usuario no ha sido configurado!");
+                return  BadRequest("�El usuario no ha sido configurado!");
 
             }
-            return new HttpError(HttpStatusCode.BadRequest, "�Usuario(a) y clave no v�lidos!");
+            return BadRequest("�Usuario(a) y clave no v�lidos!");
         }
     }
 }
