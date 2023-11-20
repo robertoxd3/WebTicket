@@ -7,22 +7,25 @@ namespace WebTicket.ViewModel
     public class LlamadaTicket
     {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-            public int IdLlamadaTicket { get; set; }
+            public int? IdLlamadaTicket { get; set; }
 
-            [Required]
-            public int IdEscritorio { get; set; }
+         
+            public int? IdEscritorio { get; set; }
 
-            [Required]
-            public int IdOrden { get; set; }
+ 
+            public int? IdOrden { get; set; }
 
-            [Required]
+    
             [MaxLength(25)]
-            public string NumeroTicket { get; set; }
+            public string? NumeroTicket { get; set; }
 
-            [Required]
+      
             [MaxLength(1)]
-            public string Estado { get; set; }
-        
+            public string? Estado { get; set; }
+
+            public DateTime? FechaLlamada { get; set; }
+            public DateTime? FechaFinalizacion { get; set; }
+            public string? CodigoUsuario { get; set; }
+
     }
 }

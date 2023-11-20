@@ -34,6 +34,7 @@ namespace WebTicket.Controllers
                     value.Token = _jwtGenerate.CreateToken(value.CodigoUsuario);
                     value.ClaveUsuario = String.Empty;
                     value.PerfilUsuario = "";
+                    value.IdEscritorio = 1;
                     
                     return new HttpResult(value, HttpStatusCode.OK);
                 }

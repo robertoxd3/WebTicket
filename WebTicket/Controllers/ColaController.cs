@@ -57,12 +57,14 @@ namespace WebTicket.Controllers
 
             try
             {
-                var result = _context.LlamadaTicket.FromSqlRaw($"EXECUTE UAP.LlamadaTicketPantalla @idEscritorio,@idTipo,@CodigoUsuario ", idEsc, tipo, codUsuario).ToList();
+                var result = _context.Database.ExecuteSqlRaw($"EXECUTE UAP.LlamadaTicketPantalla @idEscritorio,@idTipo,@CodigoUsuario ", idEsc, tipo, codUsuario);
                 System.Diagnostics.Debug.WriteLine("Result2: " + result);
-                if (result.Count() > 0)
-                {
-                    return Ok(result + "\nSe llamo al siguiente");
+
+                if(result > 0) {
+                    return Ok(result);
                 }
+
+                
             }
             catch (SqlException ex)
             {
