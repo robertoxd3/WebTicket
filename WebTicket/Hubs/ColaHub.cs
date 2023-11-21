@@ -75,7 +75,24 @@ namespace WebTicket.Hubs
                             CodigoUnidades = c.CodigoUnidades,
                             NombreSimple = u.NombreSimple,
                             IdEscritorio = e.IdEscritorio
-                        }).ToList();
+                        }).OrderBy(o=>o.Orden).ToList();
+
+
+            //var data = (from o in _context.OrdenPrioridadTicket
+            //                join t in _context.Ticket on o.IdTiket equals t.IdTicket
+            //                join e in _context.Escritorio on o.CodigoUnidades equals e.CodigoUnidad
+            //                join u in _context.Unidades on e.CodigoUnidad equals u.CodigoUnidades
+            //                where o.Espera == "S" && e.CodigoUsuario == "JIRIVASG"
+            //                select new
+            //                {
+            //                    Ticket = t,
+            //                    Orden = o.Orden,
+            //                    CodigoUnidad = e.CodigoUnidad,
+            //                    NombreSimple = u.NombreSimple,
+            //                    IdEscritorio = e.IdEscritorio,
+            //                    NoEscritorio = e.NoEscritorio,
+            //                    Espera = o.Espera
+            //                }).ToList();
 
 
             // Enviar los datos al cliente que se conecta

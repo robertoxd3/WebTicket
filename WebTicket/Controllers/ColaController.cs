@@ -58,13 +58,16 @@ namespace WebTicket.Controllers
             try
             {
                 var result = _context.Database.ExecuteSqlRaw($"EXECUTE UAP.LlamadaTicketPantalla @idEscritorio,@idTipo,@CodigoUsuario ", idEsc, tipo, codUsuario);
-                System.Diagnostics.Debug.WriteLine("Result2: " + result);
 
-                if(result > 0) {
-                    return Ok(result);
-                }
+                var data = _context.LlamadaTicket.Where(l => l.Estado == "I" && l.CodigoUsuario == llamada.codigoUsuario).ToList();
+                return Ok(data);
+                //if(result > 0) {
+                //    var data = _context.LlamadaTicket.Where(l => l.Estado == "I" && l.CodigoUsuario== llamada.codigoUsuario).ToList();
+                //    return Ok(data);
+                //}
 
-                
+
+
             }
             catch (SqlException ex)
             {
@@ -77,11 +80,23 @@ namespace WebTicket.Controllers
                     default:
                         throw;
                 }
-              
-               
             }
+        }
 
-         return Ok();
+
+        [HttpPost("ObtenerTicketFinalizados")]
+        public IActionResult ObtenerTicketFinalizados([FromBody] LlamadaTicketRequestViewModel request)
+        {
+            try
+            {
+                var data = _context.LlamadaTicket.Where(l => l.Estado == "F" && l.CodigoUsuario == request.codigoUsuario)
+                    .OrderByDescending(l=>l.FechaFinalizacion).ToList();
+                return Ok(data);
+            }
+            catch (SqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
