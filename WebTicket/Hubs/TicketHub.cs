@@ -1,0 +1,47 @@
+﻿using System.Text.RegularExpressions;
+using WebTicket.Interface;
+using ServiceStack;
+using static ServiceStack.Diagnostics.Events;
+using Microsoft.AspNetCore.SignalR;
+using WebTicket.ViewModel;
+
+namespace WebTicket.Hubs
+{
+    public class TicketHub: Hub
+    {
+        private readonly IHubData _hubData;
+
+        public TicketHub(IHubData hubData)
+        {
+            _hubData = hubData;
+        }
+
+        // Join to general hub; with it you can get the list of processes
+        public async void Join(string groupName)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName.Trim());
+        }
+
+        // Remove to hub connection
+        public async Task Remove(string user)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, user);
+        }
+
+        // Get list of processes version per user
+        public async Task GetTicketInQueue(string groupName, Usuario usuario)
+        {
+            var response = _hubData.GetTicketInQueue(usuario);
+            await Clients.Group(groupName).SendAsync("getTicketInQueue", response);
+        }
+
+        // Get list of new activities per user
+        public async Task GetTicketByUser(string groupName, Usuario usuario)
+        {
+            var response = _hubData.GetTicketByUser(usuario);
+            await Clients.Group(groupName).SendAsync("getTicketByUser", response);
+        }
+
+
+    }
+}

@@ -8,7 +8,7 @@ namespace WebTicket.ViewModel
         public int? IdEscritorio { get; set; }
         public string? CodigoUnidad { get; set; }
             
-        public string? NoEscritorio { get; set; }
+        public int? NoEscritorio { get; set; }
 
         public string? Disponibilidad { get; set; }
 

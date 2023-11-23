@@ -13,5 +13,7 @@ namespace WebTicket.ViewModel
         public string? Token { get; set; }
         public string? PerfilUsuario { get; set; }
         public int? IdEscritorio { get; set; }
+
+        public string? CodigoUnidad { get; set; }
     }
 }
