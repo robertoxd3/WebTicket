@@ -30,22 +30,6 @@ namespace WebTicket.Hubs
 
         public async Task Conectando(string groupName,string codigoUsuario)
         {
-            //var data = (from o in _context.OrdenPrioridadTicket
-            //                join c in _context.ControlTicket on o.IdControlTiket equals c.IdControlTicket
-            //                join t in _context.Ticket on o.IdTiket equals t.IdTicket
-            //                join u in _context.Unidades on c.CodigoUnidades equals u.CodigoUnidades
-            //                join e in _context.Escritorio on c.CodigoUsuario equals e.CodigoUsuario
-            //                where c.CodigoUsuario == usuario.CodigoUsuario && o.Espera == "S"
-            //                select new
-            //                {
-            //                    Ticket = t,
-            //                    Orden = o.Orden,
-            //                    CodigoUsuario = c.CodigoUsuario,
-            //                    CodigoUnidades = c.CodigoUnidades,
-            //                    NombreSimple = u.NombreSimple,
-            //                    IdEscritorio = e.IdEscritorio
-            //                }).ToList();
-
             var data = _context.LlamadaTicket.Where(l => l.Estado == "I" /*&& l.CodigoUsuario==codigoUsuario*/).ToList();
             // Enviar los datos al cliente que se conecta
             await Clients.Group(groupName).SendAsync("InitialData", data);
@@ -77,23 +61,6 @@ namespace WebTicket.Hubs
                             IdEscritorio = e.IdEscritorio
                         }).OrderBy(o=>o.Orden).ToList();
 
-            //var data = (from o in _context.OrdenPrioridadTicket
-            //            join c in _context.ControlTicket on o.IdControlTiket equals c.IdControlTicket
-            //            join t in _context.Ticket on o.IdTiket equals t.IdTicket
-            //            join u in _context.Unidades on c.CodigoUnidades equals u.CodigoUnidades
-            //            join e in _context.Escritorio on c.CodigoUsuario equals e.CodigoUsuario
-            //            where c.CodigoUsuario == usuario.CodigoUsuario && o.Espera == "S"
-            //            select new
-            //            {
-            //                Ticket = t,
-            //                Orden = o.Orden,
-            //                CodigoUsuario = c.CodigoUsuario,
-            //                CodigoUnidades = c.CodigoUnidades,
-            //                NombreSimple = u.NombreSimple,
-            //                IdEscritorio = e.IdEscritorio
-            //            }).OrderBy(o => o.Orden).ToList();
-
-            // Enviar los datos al cliente que se conecta
             await Clients.Group(groupName).SendAsync("Ticket", data);
         }
 
@@ -111,8 +78,6 @@ namespace WebTicket.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        // groupname esta la pantalla de llamada con PA12 y ejecutivos tiene su grupo de usuarios depende de su nombre
-        // los cuales manda una notificación a una llamada especifica que esta en PA12.
         public async Task JoinGroup(string groupName,Usuario usuario)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);

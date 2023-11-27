@@ -9,5 +9,7 @@
         public int? IdEscritorio { get; set; }
 
         public string? CodigoUnidad { get; set; }
+
+        //public string? PA {get; set; }
     }
 }

@@ -36,6 +36,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ITicket, ApiTicketConcrete>();
 builder.Services.AddScoped<IJwtGenerate, ApiJwtConcrete>();
 builder.Services.AddScoped<IUsuarios, ApiUsuarioConcrete>();
+builder.Services.AddScoped<IHubData, TicketHubConcrete>();
 
 builder.Services.AddSignalR(o =>
 {
@@ -66,6 +67,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.MapHub<ColaHub>("/Cola");
+app.MapHub<TicketHub>("/Ticket");
 app.MapControllers();
 //app.UseEndpoints(endpoints =>
 //{

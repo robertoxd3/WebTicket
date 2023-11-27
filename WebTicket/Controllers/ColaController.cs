@@ -65,9 +65,6 @@ namespace WebTicket.Controllers
                 //    var data = _context.LlamadaTicket.Where(l => l.Estado == "I" && l.CodigoUsuario== llamada.codigoUsuario).ToList();
                 //    return Ok(data);
                 //}
-
-
-
             }
             catch (SqlException ex)
             {

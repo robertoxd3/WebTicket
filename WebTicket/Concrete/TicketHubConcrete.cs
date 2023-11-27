@@ -1,10 +1,11 @@
 ﻿using ServiceStack;
 using System.Net;
+using WebTicket.Interface;
 using WebTicket.ViewModel;
 
 namespace WebTicket.Concrete
 {
-    public class TicketHubConcrete
+    public class TicketHubConcrete : IHubData
     {
         protected readonly DatabaseContext _context;
         public TicketHubConcrete(DatabaseContext context)
@@ -12,7 +13,7 @@ namespace WebTicket.Concrete
             _context = context;
         }
 
-        public async Task<HttpResult> GetTicketInQueue(string groupName, Usuario usuario)
+        public object GetTicketInQueue(Usuario usuario)
         {
             var list = (from o in _context.OrdenPrioridadTicket
                         join c in _context.ControlTicket on o.IdControlTiket equals c.IdControlTicket
@@ -32,9 +33,9 @@ namespace WebTicket.Concrete
             return new HttpResult(list, HttpStatusCode.OK);
         }
 
-        public async Task<HttpResult> GetTicketByUser(string groupName, Usuario usuario)
+        public object GetTicketByUser( Usuario usuario)
         {
-            var list = _context.LlamadaTicket.Where(l => l.Estado == "I" /*&& l.CodigoUsuario==codigoUsuario*/).ToList();
+            var list = _context.LlamadaTicket.Where(l => l.Estado == "I" && l.CodigoUsuario==usuario.CodigoUsuario).ToList();
             return new HttpResult(list, HttpStatusCode.OK);
         }
     }
