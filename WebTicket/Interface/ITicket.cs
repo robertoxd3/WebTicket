@@ -10,6 +10,9 @@ namespace WebTicket.Interface
         TicketImprimir CrearTicket(string codigoUnidad, int idFila, JsonModel json);
         List<TipoDeFila> GetTipodeFilas();
 
+        bool CambiarEstadoEjecutivo(UpdateEjecutivo ejecutivo);
+        bool ObtenerEstadoEjecutivo(string codigoUsuario);
+
         TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json);
 
     }

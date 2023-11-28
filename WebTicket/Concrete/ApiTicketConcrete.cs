@@ -6,6 +6,7 @@ using WebTicket.ViewModel;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using WebTicket.Concrete.Function;
+using Microsoft.Identity.Client;
 
 namespace WebTicket.Concrete
 {
@@ -29,26 +30,7 @@ namespace WebTicket.Concrete
 
         }
 
-        /*public JsonModel LeerJson()
-        {
-            string rutaArchivo = @"C:\KioskoPGRConfig\ConfigTicketeroPADs.json";
-          
-                if (System.IO.File.Exists(rutaArchivo))
-                {
-                try
-                {
-                    string contenidoJson = System.IO.File.ReadAllText(rutaArchivo);
-
-                    // Deserializar el JSON en un objeto C#.
-                    var obj = JsonSerializer.Deserialize<JsonModel>(contenidoJson);
-                    return obj;
-                }catch (Exception ex)
-                {
-                    return new JsonModel();
-                }
-                }
-            return new JsonModel();
-        */
+        
 
         public List<TipoDeFila> GetTipodeFilas()
         {
@@ -65,6 +47,59 @@ namespace WebTicket.Concrete
                 .ToList();
 
         }
+
+        public bool CambiarEstadoEjecutivo(UpdateEjecutivo ejecutivo)
+        {
+            try
+            {
+                if (ejecutivo.estado)
+                {
+                    var escritorio = _context.Escritorio.FirstOrDefault(e => e.CodigoUsuario == ejecutivo.codigoUsuario);
+                    if (escritorio != null)
+                    {
+                        escritorio.Disponibilidad = "S";
+                        _context.SaveChanges();
+                    }
+                    return true;
+                }
+                else
+                {
+                    var escritorio = _context.Escritorio.FirstOrDefault(e => e.CodigoUsuario == ejecutivo.codigoUsuario);
+                    if (escritorio != null)
+                    {
+                        escritorio.Disponibilidad = "N";
+                        _context.SaveChanges();
+                    }
+                    return true;
+                }
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public bool ObtenerEstadoEjecutivo(string ejecutivo)
+        {
+            try
+            {
+
+                var escritorio = _context.Escritorio.FirstOrDefault(e => e.CodigoUsuario == ejecutivo);
+                if (escritorio.Disponibilidad == "S") 
+                    return true;
+                else
+                    return false;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
 
         public TicketImprimir CrearTicket(string codigoUnidad, int idFila, JsonModel json)
         {
@@ -144,33 +179,6 @@ namespace WebTicket.Concrete
             ticket.Departamento = pagadurias.Departamento;
     
             ticket.NombreSimple = unidad.NombreSimple;
-
-
-            //BxlPrint.SetCharacterSet(BxlPrint.BXL_CS_WPC1252);
-            //BxlPrint.SetInterChrSet(BxlPrint.BXL_ICS_SPAIN);
-            //BxlPrint.PrintText("PGR\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_BOLD | BxlPrint.BXL_FT_UNDERLINE, BxlPrint.BXL_TS_2WIDTH | BxlPrint.BXL_TS_1HEIGHT);  
-            //    BxlPrint.PrintText("PROCURADURÍA " + pagadurias.Departamento + "\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText(fechaComoString+"\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText(unidad.NombreSimple + "\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("\nNo. Ticket:\n\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText(resultado.NumeroTicket+"\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_3WIDTH | BxlPrint.BXL_TS_1HEIGHT);
-
-            //    BxlPrint.PrintText("\nContactanos\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_BOLD | BxlPrint.BXL_FT_UNDERLINE, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("Centro de llamadas\n(+503) 2231-9484 opción 1\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("WhatsApp (+503) 7607-9013" + "\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("LESSA (+503) 7095-7080\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("Atención a Mujeres Victimas de\n Violencia 'Estamos Contigo'\n(+503) 2231-9595" + "\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("Correo electrónico\n atencion.virtual@pgres.gob.sv" + "\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-            //    BxlPrint.PrintText("Sitio Web PGR: www.pgr.gob.sv\n", BxlPrint.BXL_ALIGNMENT_CENTER, BxlPrint.BXL_FT_DEFAULT, BxlPrint.BXL_TS_0WIDTH | BxlPrint.BXL_TS_0HEIGHT);
-
-            //    Int32 lResult = BxlPrint.LineFeed(3);
-
-            //    if (lResult != BxlPrint.BXL_SUCCESS)
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("Error en el lineamiento" + lResult);
-            //    }
-
-            //    BxlPrint.PrinterClose();
 
             return ticket;
            
