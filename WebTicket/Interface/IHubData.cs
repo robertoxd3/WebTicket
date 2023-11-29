@@ -6,5 +6,7 @@ namespace WebTicket.Interface
     {
         object GetTicketInQueue(Usuario user);
         object GetTicketByUser(Usuario user);
+
+        public object GetTicketLlamada(string codigoUnidad);
     }
 }

@@ -39,8 +39,22 @@ namespace WebTicket.Hubs
         public async Task GetTicketByUser(string groupName, Usuario usuario)
         {
             var response = _hubData.GetTicketByUser(usuario);
+
             await Clients.Group(groupName).SendAsync("getTicketByUser", response);
         }
+
+        public async Task GetTicketLlamada(string groupName, string codigoUnidad)
+        {
+            var response = _hubData.GetTicketLlamada(codigoUnidad);
+
+            await Clients.Group(groupName).SendAsync("getTicketLlamada", response);
+        }
+
+        public async Task Notification(string groupName, Notificacion notificacion)
+        {
+            await Clients.Group(groupName).SendAsync("Notification", notificacion);
+        }
+
 
 
     }

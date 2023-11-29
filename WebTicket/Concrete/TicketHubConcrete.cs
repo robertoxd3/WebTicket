@@ -38,5 +38,24 @@ namespace WebTicket.Concrete
             var list = _context.LlamadaTicket.Where(l => l.Estado == "I" && l.CodigoUsuario==usuario.CodigoUsuario).ToList();
             return new HttpResult(list, HttpStatusCode.OK);
         }
+
+        public object GetTicketLlamada(string codigoUnidad)
+        {
+            var resultado = (from l in _context.LlamadaTicket
+                            join o in _context.OrdenPrioridadTicket on l.IdOrden equals o.IdOrden
+                            where (o.CodigoUnidades.StartsWith(codigoUnidad) && !o.CodigoUnidades.Trim().Equals(codigoUnidad) && l.Estado == "I")
+                            select new
+                            {
+                                IdLlamadaTicket = l.IdLlamadaTicket,
+                                IdEscritorio=l.IdEscritorio,
+                                IdOrden=l.IdOrden,
+                                NumeroTicket=l.NumeroTicket,
+                                Estado=l.Estado,
+                                CodigoUsuario= l.CodigoUsuario
+
+                            }).ToList();
+            //var list = _context.LlamadaTicket.Where(l => l.Estado == "I").ToList();
+            return new HttpResult(resultado, HttpStatusCode.OK);
+        }
     }
 }
