@@ -33,7 +33,7 @@ namespace WebTicket.Concrete
             modelBuilder.Entity<SIS_Usuarios>().HasKey(k => new { k.CodigoUsuario });
             modelBuilder.Entity<OrdenPrioridadTicket>().HasKey(k => new { k.IdOrden });
             modelBuilder.Entity<Escritorio>().HasKey(k => new { k.IdEscritorio });
-
+            modelBuilder.Entity<OrdenPrioridadTicket>().ToTable(tb => tb.HasTrigger("RedirigirUnidad"));
 
         }
     }

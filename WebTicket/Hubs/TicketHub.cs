@@ -4,6 +4,7 @@ using ServiceStack;
 using static ServiceStack.Diagnostics.Events;
 using Microsoft.AspNetCore.SignalR;
 using WebTicket.ViewModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebTicket.Hubs
 {
@@ -55,7 +56,14 @@ namespace WebTicket.Hubs
             await Clients.Group(groupName).SendAsync("Notification", notificacion);
         }
 
+        public async Task GetTicketTransferencias(string groupName, string codigoUnidad)
+        {
+            var response = _hubData.GetTicketTransferencia(codigoUnidad);
 
+            await Clients.Group(groupName).SendAsync("getTicketTransferencias", response);
+        }
+
+        
 
     }
 }

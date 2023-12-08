@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Net;
+using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -96,6 +97,59 @@ namespace WebTicket.Controllers
             }
         }
 
+        [HttpPost("TransferirTicket")]
+        public bool TransferirTicket([FromBody] OrdenPrioridadTicket ticket)
+        {
+            try
+            {
+                var orden = _context.OrdenPrioridadTicket.FirstOrDefault(o => o.IdOrden == ticket.IdOrden);
+
+                if (orden != null)
+                {
+                    orden.Orden = 0;
+                    orden.Espera = "R";
+                    orden.Redirigir = "S";
+                    orden.CodigoUnidadRedirigir = ticket.CodigoUnidadRedirigir;
+
+                    _context.SaveChanges();
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (SqlException ex)
+            {
+                return false;
+            }
+        }
+
+        [HttpPost("Transferir")]
+        public object GetTransferidos([FromForm] LlamadaTicketRequestViewModel data)
+        {
+            try
+            {
+                var resultado = (from o in _context.OrdenPrioridadTicket
+                                 join l in _context.LlamadaTicket on o.IdOrden equals l.IdOrden
+                                 join u in _context.Unidades on o.CodigoUnidadRedirigir equals u.CodigoUnidades
+                                 where o.Orden == 0 && o.Espera == "R" && l.CodigoUsuario == data.codigoUsuario
+                                 select new
+                                 {
+                                     NumeroTicket = l.NumeroTicket,
+                                     FechaLlamada = l.FechaLlamada,
+                                     CodigoUnidades = o.CodigoUnidades,
+                                     CodigoUnidadRedirigir = o.CodigoUnidadRedirigir,
+                                     UnidadRedirigir = u.NombreSimple
+                                 }).ToList();
+                if (resultado != null)
+                    return Ok(resultado);
+                else
+                    return BadRequest(resultado);
+            }
+            catch (SqlException ex)
+            {
+                return BadRequest( "Error en la Base de datos" + ex);
+            }
+        }
 
     }
 }

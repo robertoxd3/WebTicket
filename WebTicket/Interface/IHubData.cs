@@ -8,5 +8,7 @@ namespace WebTicket.Interface
         object GetTicketByUser(Usuario user);
 
         public object GetTicketLlamada(string codigoUnidad);
+
+        public object GetTicketTransferencia(string codigoUnidad);
     }
 }
