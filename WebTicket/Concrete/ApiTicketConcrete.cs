@@ -118,12 +118,15 @@ namespace WebTicket.Concrete
 
                 var result = 0;
                 System.Diagnostics.Debug.WriteLine("Param1: "+param1 +"\nParam2: "+param2);
+                if (validarDisponibilidad(codigoUnidad))
+                {
+
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
+                }
 
                 if (result > 0)
                 {
-                    //System.Diagnostics.Debug.WriteLine("VARIABLES: " + codigoUnidad+ " v2: "+idFila);
-                    //System.Diagnostics.Debug.WriteLine("JSON ANTES DE: " + json.config.codigoPad);
+   
                     return ImprimirTicket(codigoUnidad, idFila, json);
                 }
                 else
@@ -136,6 +139,26 @@ namespace WebTicket.Concrete
                 throw;
             }
           
+        }
+
+        private bool validarDisponibilidad(string codigoUnidad)
+        {
+            var countEjecutivos = _context.Escritorio
+                        .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S")
+                        .Count();
+            if(countEjecutivos> 2)
+            {
+                return true;
+            }
+            else
+            {
+                var ejecutivo = _context.Escritorio
+                        .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S").First();
+
+                //var revisar= _context
+
+                    return true;
+            }
         }
 
         public TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json)

@@ -9,6 +9,6 @@ namespace WebTicket.Interface
 
         public object GetTicketLlamada(string codigoUnidad);
 
-        public object GetTicketTransferencia(string codigoUnidad);
+        //public object GetTicketTransferencia(string codigoUnidad);
     }
 }

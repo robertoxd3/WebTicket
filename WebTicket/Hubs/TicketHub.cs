@@ -56,14 +56,14 @@ namespace WebTicket.Hubs
             await Clients.Group(groupName).SendAsync("Notification", notificacion);
         }
 
-        public async Task GetTicketTransferencias(string groupName, string codigoUnidad)
-        {
-            var response = _hubData.GetTicketTransferencia(codigoUnidad);
+        //public async Task GetTicketTransferencias(string groupName, string codigoUnidad)
+        //{
+        //    var response = _hubData.GetTicketTransferencia(codigoUnidad.Trim());
 
-            await Clients.Group(groupName).SendAsync("getTicketTransferencias", response);
-        }
+        //    await Clients.Group(groupName).SendAsync("getTicketTransferencias", response);
+        //}
 
-        
+
 
     }
 }

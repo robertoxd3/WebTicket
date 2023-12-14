@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ServiceStack;
+using System.Net;
 using WebTicket.Concrete;
 using WebTicket.Interface;
 using WebTicket.ViewModel;
@@ -90,6 +91,24 @@ namespace WebTicket.Hubs
         {
             await Clients.Group(groupName).SendAsync("Notification", notificacion);
         }
+
+        public async Task GetTicketTransferencias(string groupName, string codigoUnidad)
+        {
+            var resultado = (from o in _context.OrdenPrioridadTicket
+                             join l in _context.LlamadaTicket on o.IdOrden equals l.IdOrden
+                             join u in _context.Unidades on o.CodigoUnidadRedirigir equals u.CodigoUnidades
+                             where o.Orden == 0 && o.Espera == "R" && o.CodigoUnidadRedirigir == codigoUnidad
+                             select new
+                             {
+                                 NumeroTicket = l.NumeroTicket,
+                                 FechaLlamada = l.FechaLlamada,
+                                 CodigoUnidades = o.CodigoUnidades,
+                                 CodigoUnidadRedirigir = o.CodigoUnidadRedirigir,
+                                 UnidadRedirigir = u.NombreSimple
+                             }).ToList();
+            await Clients.Group(groupName).SendAsync("getTicketTransferencias", resultado);
+        }
+
 
 
 

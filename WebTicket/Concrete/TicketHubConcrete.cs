@@ -58,21 +58,21 @@ namespace WebTicket.Concrete
             return new HttpResult(resultado, HttpStatusCode.OK);
         }
 
-        public object GetTicketTransferencia(string codigoUnidad)
-        {
-            var resultado = (from o in _context.OrdenPrioridadTicket
-                             join l in _context.LlamadaTicket on o.IdOrden equals l.IdOrden
-                             join u in _context.Unidades on o.CodigoUnidadRedirigir equals u.CodigoUnidades
-                             where o.Orden == 0 && o.Espera == "R" && o.CodigoUnidades == codigoUnidad
-                             select new
-                             {
-                                 NumeroTicket = l.NumeroTicket,
-                                 FechaLlamada = l.FechaLlamada,
-                                 CodigoUnidades = o.CodigoUnidades,
-                                 CodigoUnidadRedirigir = o.CodigoUnidadRedirigir,
-                                 UnidadRedirigir = u.NombreSimple
-                             }).ToList();
-            return new HttpResult(resultado, HttpStatusCode.OK);
-        }
+        //public object GetTicketTransferencia(string codigoUnidad)
+        //{
+        //    var resultado = (from o in _context.OrdenPrioridadTicket
+        //                     join l in _context.LlamadaTicket on o.IdOrden equals l.IdOrden
+        //                     join u in _context.Unidades on o.CodigoUnidadRedirigir equals u.CodigoUnidades
+        //                     where o.Orden == 0 && o.Espera == "R" && o.CodigoUnidadRedirigir == codigoUnidad
+        //                     select new
+        //                     {
+        //                         NumeroTicket = l.NumeroTicket,
+        //                         FechaLlamada = l.FechaLlamada,
+        //                         CodigoUnidades = o.CodigoUnidades,
+        //                         CodigoUnidadRedirigir = o.CodigoUnidadRedirigir,
+        //                         UnidadRedirigir = u.NombreSimple
+        //                     }).ToList();
+        //    return new HttpResult(resultado, HttpStatusCode.OK);
+        //}
     }
 }
