@@ -7,6 +7,8 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using WebTicket.Concrete.Function;
 using Microsoft.Identity.Client;
+using ServiceStack;
+using System.Net;
 
 namespace WebTicket.Concrete
 {
@@ -155,8 +157,17 @@ namespace WebTicket.Concrete
                 var ejecutivo = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S").First();
 
-                //var revisar= _context
+                var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio).First();
+                if (revisar.IdEscritorio!=null)
+                {
+                    DateTime fechaActual = DateTime.Now;
+                    if (fechaActual == revisar.FechaInicio)
+                    {
+                        
+                        return false;
+                    }
 
+                }
                     return true;
             }
         }
@@ -205,6 +216,18 @@ namespace WebTicket.Concrete
 
             return ticket;
            
+        }
+
+        public object ProgramarIndisponibilidad(ProgramarIndisponibilidad model)
+        {
+            ProgramarIndisponibilidad indisponibilidad = new ProgramarIndisponibilidad();
+            //indisponibilidad.IdProgramarIndiponibilidad = 1;
+            indisponibilidad.IdEscritorio=model.IdEscritorio;
+            indisponibilidad.FechaInicio=model.FechaInicio;
+            indisponibilidad.HorasNoDisponible=model.HorasNoDisponible;
+            _context.ProgramarIndisponibilidad.Add(indisponibilidad);
+            return _context.SaveChanges() > 0 ? new HttpResult(true, HttpStatusCode.OK) : new HttpResult(false, HttpStatusCode.OK);
+
         }
 
 

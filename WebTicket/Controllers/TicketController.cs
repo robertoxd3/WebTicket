@@ -118,6 +118,12 @@ namespace WebTicket.Controllers
             }
 
         }
-      
+
+        [HttpPost("ProgramarDisponibilidad")]
+        public object ProgramarDisponibilidad([FromBody] ProgramarIndisponibilidad model)
+        {
+            return _tickets.ProgramarIndisponibilidad(model);
+        }
+
     }
 }

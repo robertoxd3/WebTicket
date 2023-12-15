@@ -15,5 +15,7 @@ namespace WebTicket.Interface
 
         TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json);
 
+        object ProgramarIndisponibilidad(ProgramarIndisponibilidad model);
+
     }
 }
