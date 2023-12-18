@@ -2,7 +2,7 @@
 
 namespace WebTicket.ViewModel
 {
-    [Table("ProgramarIndisponibilidad", Schema = "UAP")]
+    [Table("ProgramarIndisponiblidad", Schema = "UAP")]
     public class ProgramarIndisponibilidad
     {
         public int? IdProgramarIndiponibilidad { get; set; }

@@ -103,7 +103,7 @@ namespace WebTicket.Concrete
         }
 
 
-        public TicketImprimir CrearTicket(string codigoUnidad, int idFila, JsonModel json)
+        public object CrearTicket(string codigoUnidad, int idFila, JsonModel json)
         {
             try
             {
@@ -119,25 +119,24 @@ namespace WebTicket.Concrete
                 };
 
                 var result = 0;
-                System.Diagnostics.Debug.WriteLine("Param1: "+param1 +"\nParam2: "+param2);
+             
                 if (validarDisponibilidad(codigoUnidad))
                 {
-
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
-                }
-
-                if (result > 0)
-                {
-   
-                    return ImprimirTicket(codigoUnidad, idFila, json);
+                    if (result > 0)
+                    {
+                        return ImprimirTicket(codigoUnidad, idFila, json);
+                    }
+                    else
+                        return new HttpResult(true, HttpStatusCode.OK);
+                       
                 }
                 else
-                    return new TicketImprimir();
-                
+                    return new HttpError(HttpStatusCode.BadRequest, "No se pudo crear el ticket por que no hay personal activo para la unidad seleccionada.");
+
             }
             catch (Exception)
             {
-
                 throw;
             }
           
@@ -148,7 +147,7 @@ namespace WebTicket.Concrete
             var countEjecutivos = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S")
                         .Count();
-            if(countEjecutivos> 2)
+            if(countEjecutivos>= 2)
             {
                 return true;
             }
@@ -157,18 +156,22 @@ namespace WebTicket.Concrete
                 var ejecutivo = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S").First();
 
-                var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio).First();
-                if (revisar.IdEscritorio!=null)
+                var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio).OrderByDescending(x=>x.IdProgramarIndiponibilidad).FirstOrDefault();
+                if (revisar!=null)
                 {
                     DateTime fechaActual = DateTime.Now;
-                    if (fechaActual == revisar.FechaInicio)
+                    DateTime limite = DateTime.Today.AddHours(16);
+                    if (fechaActual.Date == revisar.FechaInicio.Date )
                     {
-                        
-                        return false;
+                        DateTime nuevaFecha = fechaActual.AddHours((double)revisar.HorasNoDisponible);
+                        if (nuevaFecha > limite)
+                        {
+                            return false;
+                        }
                     }
 
                 }
-                    return true;
+                return true;
             }
         }
 
@@ -227,6 +230,21 @@ namespace WebTicket.Concrete
             indisponibilidad.HorasNoDisponible=model.HorasNoDisponible;
             _context.ProgramarIndisponibilidad.Add(indisponibilidad);
             return _context.SaveChanges() > 0 ? new HttpResult(true, HttpStatusCode.OK) : new HttpResult(false, HttpStatusCode.OK);
+
+        }
+
+        public object ObtenerProgramados(ProgramarIndisponibilidad model)
+        {
+           var result= _context.ProgramarIndisponibilidad.Where(x=>x.IdEscritorio==model.IdEscritorio).ToList();
+            return new HttpResult(result, HttpStatusCode.OK);
+
+        }
+
+        public object BorrarProgramados(ProgramarIndisponibilidad model)
+        {
+
+           var res= _context.ProgramarIndisponibilidad.Remove(model);
+            return _context.SaveChanges() > 0 ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.BadRequest);
 
         }
 

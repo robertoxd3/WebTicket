@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using WebTicket.ViewModel;
 
 namespace WebTicket.Interface
@@ -7,7 +8,7 @@ namespace WebTicket.Interface
     {
         //JsonModel LeerJson();
         List<Unidades> GetUnidades(JsonModel json);
-        TicketImprimir CrearTicket(string codigoUnidad, int idFila, JsonModel json);
+        object CrearTicket(string codigoUnidad, int idFila, JsonModel json);
         List<TipoDeFila> GetTipodeFilas();
 
         bool CambiarEstadoEjecutivo(UpdateEjecutivo ejecutivo);
@@ -16,6 +17,9 @@ namespace WebTicket.Interface
         TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json);
 
         object ProgramarIndisponibilidad(ProgramarIndisponibilidad model);
+        object ObtenerProgramados(ProgramarIndisponibilidad model);
+
+        object BorrarProgramados(ProgramarIndisponibilidad model);
 
     }
 }

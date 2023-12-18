@@ -5,6 +5,7 @@ using WebTicket.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebTicket.Concrete.Function;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +69,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapHub<ColaHub>("/Cola");
 app.MapHub<TicketHub>("/Ticket");
+app.MapHub<TranferidosHub>("/Transferidos");
 app.MapControllers();
 //app.UseEndpoints(endpoints =>
 //{
