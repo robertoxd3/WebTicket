@@ -242,9 +242,25 @@ namespace WebTicket.Concrete
 
         public object BorrarProgramados(ProgramarIndisponibilidad model)
         {
+            ProgramarIndisponibilidad i = new ProgramarIndisponibilidad();
+            i.IdProgramarIndiponibilidad = model.IdProgramarIndiponibilidad;
+            i.IdEscritorio=model.IdEscritorio;
+            i.FechaInicio=model.FechaInicio;
+            i.HorasNoDisponible=model.HorasNoDisponible;
 
-           var res= _context.ProgramarIndisponibilidad.Remove(model);
-            return _context.SaveChanges() > 0 ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.BadRequest);
+            var result = _context.ProgramarIndisponibilidad.Where(x => x.IdProgramarIndiponibilidad == model.IdProgramarIndiponibilidad).First();
+            var res= _context.ProgramarIndisponibilidad.Remove(result);
+
+            if(_context.SaveChanges() > 0)
+            {
+                return new HttpResult(res, HttpStatusCode.OK);
+            }
+            else
+            {
+                return new HttpResult(res, HttpStatusCode.OK);
+            }
+
+           // return  ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.OK);
 
         }
 

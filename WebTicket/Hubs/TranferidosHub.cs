@@ -18,7 +18,7 @@ namespace WebTicket.Hubs
             _context = context;
         }
 
-        public async Task JoinGroup(string groupName, Usuario usuario)
+        public async Task JoinGroup(string groupName)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("NewUser", $"{Context.ConnectionId} entró al canal");
