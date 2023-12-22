@@ -137,5 +137,11 @@ namespace WebTicket.Controllers
             return _tickets.BorrarProgramados(model);
         }
 
+        [HttpPost("ModificarProgramados")]
+        public object ModificarProgramados([FromBody]  ProgramarIndisponibilidad model)
+        {
+            return _tickets.ModificarProgramados(model);
+        }
+
     }
 }

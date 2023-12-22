@@ -83,8 +83,7 @@ namespace WebTicket.Hubs
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("NewUser", $"{Context.ConnectionId} entró al canal");
-            //await Conectando(groupName, usuario.CodigoUsuario);
-            //await ObtenerTicketEnCola(groupName,usuario);
+            
         }
 
         public async Task Notification(string groupName, Notificacion notificacion)

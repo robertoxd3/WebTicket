@@ -14,12 +14,14 @@ namespace WebTicket.Interface
         bool CambiarEstadoEjecutivo(UpdateEjecutivo ejecutivo);
         bool ObtenerEstadoEjecutivo(string codigoUsuario);
 
-        TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json);
+        object ImprimirTicket(string codigoUnidad, int idFila, JsonModel json, string mensajeTiempo);
 
         object ProgramarIndisponibilidad(ProgramarIndisponibilidad model);
         object ObtenerProgramados(ProgramarIndisponibilidad model);
 
         object BorrarProgramados(ProgramarIndisponibilidad model);
+
+        object ModificarProgramados(ProgramarIndisponibilidad model);
 
     }
 }

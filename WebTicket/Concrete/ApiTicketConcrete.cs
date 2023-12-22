@@ -119,20 +119,24 @@ namespace WebTicket.Concrete
                 };
 
                 var result = 0;
+                var resultado = validarDisponibilidad(codigoUnidad);
              
-                if (validarDisponibilidad(codigoUnidad))
+                if (resultado.Item1)
                 {
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
                     if (result > 0)
                     {
-                        return ImprimirTicket(codigoUnidad, idFila, json);
+                        return ImprimirTicket(codigoUnidad, idFila, json,resultado.Item2);
                     }
                     else
                         return new HttpResult(true, HttpStatusCode.OK);
                        
                 }
                 else
-                    return new HttpError(HttpStatusCode.BadRequest, "No se pudo crear el ticket por que no hay personal activo para la unidad seleccionada.");
+                {
+               
+                    return new HttpError(HttpStatusCode.BadRequest, "No se pudo crear el ticket por que no hay personal activo para la unidad seleccionada, se espera servicio "+resultado.Item2);
+                }
 
             }
             catch (Exception)
@@ -142,14 +146,15 @@ namespace WebTicket.Concrete
           
         }
 
-        private bool validarDisponibilidad(string codigoUnidad)
+
+        private (bool, string) validarDisponibilidad(string codigoUnidad)
         {
             var countEjecutivos = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S")
                         .Count();
             if(countEjecutivos>= 2)
             {
-                return true;
+                return (true, "OK");
             }
             else
             {
@@ -160,22 +165,27 @@ namespace WebTicket.Concrete
                 if (revisar!=null)
                 {
                     DateTime fechaActual = DateTime.Now;
-                    DateTime limite = DateTime.Today.AddHours(16);
-                    if (fechaActual.Date == revisar.FechaInicio.Date )
+                    DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
+                    if (fechaActual.Date == revisar.FechaInicio?.Date )
                     {
                         DateTime nuevaFecha = fechaActual.AddHours((double)revisar.HorasNoDisponible);
                         if (nuevaFecha > limite)
                         {
-                            return false;
+                             
+                            return(false, "Hasta Mañana.");
+                        }
+                        else
+                        {
+                            return (true, ""+ nuevaFecha.ToString("HH:mm:ss"));
                         }
                     }
 
                 }
-                return true;
+                return (true, "OK");
             }
         }
 
-        public TicketImprimir ImprimirTicket(string codigoUnidad, int idFila, JsonModel json)
+        public object ImprimirTicket(string codigoUnidad, int idFila, JsonModel json,string mensajeTiempo)
         {         
             //obtnere el idControlTicket dependiendo del codigoUnidad y el idFila seleccionado en el frontend
             var controlTicket = _context.ControlTicket
@@ -216,9 +226,14 @@ namespace WebTicket.Concrete
             ticket.Departamento = pagadurias.Departamento;
     
             ticket.NombreSimple = unidad.NombreSimple;
+         
 
-            return ticket;
-           
+            //return ticket;
+            return new HttpResult(ticket, HttpStatusCode.OK)
+            {
+                StatusDescription = mensajeTiempo
+            };
+
         }
 
         public object ProgramarIndisponibilidad(ProgramarIndisponibilidad model)
@@ -261,6 +276,24 @@ namespace WebTicket.Concrete
             }
 
            // return  ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.OK);
+
+        }
+
+        public object ModificarProgramados(ProgramarIndisponibilidad model)
+        {
+          
+            var res = _context.ProgramarIndisponibilidad.Update(model);
+
+            if (_context.SaveChanges() > 0)
+            {
+                return new HttpResult(res, HttpStatusCode.OK);
+            }
+            else
+            {
+                return new HttpResult(res, HttpStatusCode.OK);
+            }
+
+            // return  ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.OK);
 
         }
 
