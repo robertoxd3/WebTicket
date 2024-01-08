@@ -43,6 +43,7 @@ namespace WebTicket.Concrete
         {
             var resultado = (from l in _context.LlamadaTicket
                             join o in _context.OrdenPrioridadTicket on l.IdOrden equals o.IdOrden
+                            join e in _context.Escritorio on l.IdEscritorio equals e.IdEscritorio
                             where (o.CodigoUnidades.StartsWith(codigoUnidad) && !o.CodigoUnidades.Trim().Equals(codigoUnidad) && l.Estado == "I")
                             select new
                             {
@@ -51,7 +52,8 @@ namespace WebTicket.Concrete
                                 IdOrden=l.IdOrden,
                                 NumeroTicket=l.NumeroTicket,
                                 Estado=l.Estado,
-                                CodigoUsuario= l.CodigoUsuario
+                                CodigoUsuario= l.CodigoUsuario,
+                                NoEscritorio= e.NoEscritorio
 
                             }).ToList();
             //var list = _context.LlamadaTicket.Where(l => l.Estado == "I").ToList();

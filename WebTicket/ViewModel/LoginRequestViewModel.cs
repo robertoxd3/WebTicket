@@ -15,5 +15,10 @@ namespace WebTicket.ViewModel
         public int? IdEscritorio { get; set; }
 
         public string? CodigoUnidad { get; set; }
+
+        public string? NoEscritorio { get; set; }
+        public string? idPad { get; set; }
+
+        public string? codigoPad { get; set; }
     }
 }

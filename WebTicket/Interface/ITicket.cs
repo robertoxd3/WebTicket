@@ -8,6 +8,7 @@ namespace WebTicket.Interface
     {
         //JsonModel LeerJson();
         List<Unidades> GetUnidades(JsonModel json);
+        List<Unidades> GetUnidades(Usuario json);
         object CrearTicket(string codigoUnidad, int idFila, JsonModel json);
         List<TipoDeFila> GetTipodeFilas();
 

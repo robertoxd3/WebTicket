@@ -44,6 +44,15 @@ namespace WebTicket.Controllers
             return new Unidades[0];
         }
 
+        [HttpPost("getUnidadesUser")]
+        public IEnumerable<Unidades> GetUnidades([FromBody] Usuario usuario)
+        {
+                IEnumerable<Unidades> results = new List<Unidades>();
+                results = _tickets.GetUnidades(usuario);
+                return results;
+
+        }
+
 
         [HttpGet("getTipoFilas")]
         public IEnumerable<TipoDeFila> GetTipodeFilas()
@@ -138,7 +147,7 @@ namespace WebTicket.Controllers
         }
 
         [HttpPost("ModificarProgramados")]
-        public object ModificarProgramados([FromBody]  ProgramarIndisponibilidad model)
+        public object ModificarProgramados( ProgramarIndisponibilidad model)
         {
             return _tickets.ModificarProgramados(model);
         }

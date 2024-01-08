@@ -37,7 +37,10 @@ namespace WebTicket.Controllers
                     Usuario escritorio =_usuarios.ObtenerInfoUsuario(value.CodigoUsuario);
                     value.IdEscritorio = escritorio.IdEscritorio;
                     value.CodigoUnidad = escritorio.CodigoUnidad;
-                    
+                    value.NoEscritorio = escritorio.NoEscritorio;
+                    value.codigoPad = escritorio.codigoPad;
+                    value.idPad= escritorio.idPad;
+
                     return new HttpResult(value, HttpStatusCode.OK);
                 }
 

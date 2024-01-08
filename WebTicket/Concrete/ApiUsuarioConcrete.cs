@@ -37,15 +37,24 @@ namespace WebTicket.Concrete
 
         public Usuario ObtenerInfoUsuario(string codigoUsuario)
         {
-            var result = (from e in _context.Escritorio where e.CodigoUsuario == codigoUsuario
-                         select new
-                         {
-                            escritorio =e.IdEscritorio,
-                            codigoUnidad= e.CodigoUnidad
-                         }).FirstOrDefault();
+
+            var result = (from e in _context.Escritorio
+                            join p in _context.Pagaduria on e.CodigoPagaduria equals p.CodigoPagaduria
+                          where e.CodigoUsuario.Trim()==codigoUsuario
+                            select new
+                            {
+                                idEscritorio = e.IdEscritorio,
+                                noEscritorio = e.NoEscritorio,
+                                codigoUnidad = e.CodigoUnidad,
+                                idPad = p.CodigoUnidades,
+                                codigoPad=p.CodigoUnidadOrganizacional,
+                            }).FirstOrDefault();
             Usuario res= new Usuario();
-            res.IdEscritorio = result.escritorio;
+            res.IdEscritorio = result.idEscritorio;
+            res.NoEscritorio = result.noEscritorio;
             res.CodigoUnidad = result.codigoUnidad;
+            res.idPad = result.idPad.Trim();
+            res.codigoPad = result.codigoPad.Trim();
             return res;
         }
     }

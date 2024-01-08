@@ -32,7 +32,18 @@ namespace WebTicket.Concrete
 
         }
 
-        
+        public List<Unidades> GetUnidades(Usuario json)
+        {
+            //var obj = LeerJson();
+
+            return _context.Unidades.Select(n => new Unidades
+            {
+                CodigoUnidades = n.CodigoUnidades,
+                NombreSimple = n.NombreSimple
+            }).Where(u => u.CodigoUnidades.StartsWith(json.idPad) && u.CodigoUnidades.Trim() != json.idPad)
+            .ToList();
+
+        }
 
         public List<TipoDeFila> GetTipodeFilas()
         {
@@ -250,7 +261,7 @@ namespace WebTicket.Concrete
 
         public object ObtenerProgramados(ProgramarIndisponibilidad model)
         {
-           var result= _context.ProgramarIndisponibilidad.Where(x=>x.IdEscritorio==model.IdEscritorio).ToList();
+           var result= _context.ProgramarIndisponibilidad.Where(x=>x.IdEscritorio==model.IdEscritorio).OrderByDescending(x=>x.FechaInicio).ToList();
             return new HttpResult(result, HttpStatusCode.OK);
 
         }
@@ -281,8 +292,9 @@ namespace WebTicket.Concrete
 
         public object ModificarProgramados(ProgramarIndisponibilidad model)
         {
-          
-            var res = _context.ProgramarIndisponibilidad.Update(model);
+
+  
+              var res = _context.ProgramarIndisponibilidad.Update(model);
 
             if (_context.SaveChanges() > 0)
             {
