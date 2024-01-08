@@ -20,7 +20,16 @@ namespace WebTicket.Hubs
         // Join to general hub; with it you can get the list of processes
         public async void Join(string groupName)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupName.Trim());
+            try
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupName.Trim());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+           
         }
 
         // Remove to hub connection

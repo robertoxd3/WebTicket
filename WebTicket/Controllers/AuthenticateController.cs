@@ -31,17 +31,25 @@ namespace WebTicket.Controllers
                 System.Diagnostics.Debug.WriteLine("Paso autenticate");
                 if (loginStatus)
                 {
-                    value.Token = _jwtGenerate.CreateToken(value.CodigoUsuario);
-                    value.ClaveUsuario = String.Empty;
-                    value.PerfilUsuario = "";
-                    Usuario escritorio =_usuarios.ObtenerInfoUsuario(value.CodigoUsuario);
-                    value.IdEscritorio = escritorio.IdEscritorio;
-                    value.CodigoUnidad = escritorio.CodigoUnidad;
-                    value.NoEscritorio = escritorio.NoEscritorio;
-                    value.codigoPad = escritorio.codigoPad;
-                    value.idPad= escritorio.idPad;
+                    try
+                    {
+                        value.Token = _jwtGenerate.CreateToken(value.CodigoUsuario);
+                        value.ClaveUsuario = String.Empty;
+                        value.PerfilUsuario = "";
+                        Usuario escritorio = _usuarios.ObtenerInfoUsuario(value.CodigoUsuario);
+                        value.IdEscritorio = escritorio.IdEscritorio;
+                        value.CodigoUnidad = escritorio.CodigoUnidad;
+                        value.NoEscritorio = escritorio.NoEscritorio;
+                        value.codigoPad = escritorio.codigoPad;
+                        value.idPad = escritorio.idPad;
 
-                    return new HttpResult(value, HttpStatusCode.OK);
+                        return new HttpResult(value, HttpStatusCode.OK);
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest("�El usuario no ha sido configurado!");
+                    }
+                  
                 }
 
                 return  BadRequest("�El usuario no ha sido configurado!");
