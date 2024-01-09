@@ -10,8 +10,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+//builder.Services.AddControllers().AddJsonOptions(x =>
+//                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // Add services to the container.
 builder.Services.AddDbContext<DatabaseContext>(options =>
@@ -61,13 +61,14 @@ var app = builder.Build();
     app.UseSwaggerUI();
 //}
 
+app.UseHttpsRedirection();
 
 app.UseCors(option =>
 {
     option.WithOrigins("*").AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
 });
 
-app.UseHttpsRedirection();
+
 
 
 app.UseAuthorization();
