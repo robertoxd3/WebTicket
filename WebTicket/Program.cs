@@ -51,10 +51,6 @@ builder.Services.AddSignalR(o =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
-{
-    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-}));
 
 var app = builder.Build();
 
@@ -67,7 +63,14 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseCors("corsapp");
+app.UseCors(option =>
+{
+    option.WithOrigins("*").AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+});
+
+
+
+
 app.UseAuthorization();
 app.MapHub<ColaHub>("/Cola");
 app.MapHub<TicketHub>("/Ticket");
@@ -78,7 +81,7 @@ app.MapControllers();
 //    endpoints.MapControllers();
 //    endpoints.MapHub<Cola>("/Cola");
 //});
-app.UseWebSockets();
+//app.UseWebSockets();
 
 
 
