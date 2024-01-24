@@ -5,6 +5,7 @@ using static ServiceStack.Diagnostics.Events;
 using Microsoft.AspNetCore.SignalR;
 using WebTicket.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace WebTicket.Hubs
 {
@@ -24,10 +25,10 @@ namespace WebTicket.Hubs
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, groupName.Trim());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+               // return new HttpError(HttpStatusCode.BadRequest, ex.Message);
             }
            
         }

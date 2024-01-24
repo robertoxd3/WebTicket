@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using ServiceStack;
 using WebTicket.Concrete;
 using WebTicket.Hubs;
 using WebTicket.ViewModel;
 
 namespace WebTicket.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
     public class ColaController : Controller
     {
@@ -39,7 +40,7 @@ namespace WebTicket.Controllers
         }
 
         [HttpPost("ProcedimientoTicket")]
-        public IActionResult LlamadoTicket([FromBody]LlamadaTicketRequestViewModel llamada)
+        public object LlamadoTicket([FromBody]LlamadaTicketRequestViewModel llamada)
         {
 
             var idEsc = new SqlParameter("@idEscritorio", SqlDbType.NVarChar)
@@ -69,16 +70,19 @@ namespace WebTicket.Controllers
             }
             catch (SqlException ex)
             {
-                switch (ex.Number)
-                {
-                    case 50000:
-                        string mensaje = ex.Message;
-                        return BadRequest(mensaje);
-                        break;
-                    default:
-                        throw;
-                }
-            }
+ 
+                return new HttpError(HttpStatusCode.BadRequest, ex.Message);
+
+            //switch (ex.Number)
+            //{
+            //    case 50000:
+            //        string mensaje = ex.Message;
+            //        return Ok(mensaje);
+            //        break;
+            //    default:
+            //        throw;
+            //}
+        }
         }
 
 

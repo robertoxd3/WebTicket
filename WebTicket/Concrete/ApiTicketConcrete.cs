@@ -9,6 +9,7 @@ using WebTicket.Concrete.Function;
 using Microsoft.Identity.Client;
 using ServiceStack;
 using System.Net;
+using System.Diagnostics;
 
 namespace WebTicket.Concrete
 {
@@ -19,29 +20,57 @@ namespace WebTicket.Concrete
         public ApiTicketConcrete(DatabaseContext context) => _context = context;
 
 
-        public List<Unidades> GetUnidades(JsonModel json)
+        public object GetUnidades(JsonModel json)
         {
-            //var obj = LeerJson();
-        
-            return _context.Unidades.Select(n => new Unidades
-            {
-                CodigoUnidades = n.CodigoUnidades,
-                NombreSimple = n.NombreSimple
-            }).Where(u => u.CodigoUnidades.StartsWith(json.config.idPad) && u.CodigoUnidades.Trim() != json.config.idPad)
-            .ToList();
+
+            var resultado = (from u in _context.Unidades
+                             where u.CodigoUnidades.StartsWith(json.config.idPad) && u.CodigoUnidades.Trim() != json.config.idPad
+                             select new
+                             {
+                                 u.NombreSimple,
+                                 u.CodigoUnidades
+                             })
+
+                 .Union(
+                    from uo in _context.UnidadesOtras
+                    where uo.CodigoUnidades.StartsWith(json.config.idPad) && uo.CodigoUnidades.Trim() != json.config.idPad
+                    select new
+                    {
+                        uo.NombreSimple,
+                        uo.CodigoUnidades
+                    }
+                 ).ToList();
+
+
+            return resultado;
+
+
+
 
         }
 
-        public List<Unidades> GetUnidades(Usuario json)
+        public object GetUnidades(Usuario json)
         {
-            //var obj = LeerJson();
+            var resultado = (from u in _context.Unidades
+                             where u.CodigoUnidades.StartsWith(json.idPad) && u.CodigoUnidades.Trim() != json.idPad
+                             select new
+                             {
+                                 u.NombreSimple,
+                                 u.CodigoUnidades
+                             })
 
-            return _context.Unidades.Select(n => new Unidades
-            {
-                CodigoUnidades = n.CodigoUnidades,
-                NombreSimple = n.NombreSimple
-            }).Where(u => u.CodigoUnidades.StartsWith(json.idPad) && u.CodigoUnidades.Trim() != json.idPad)
-            .ToList();
+                .Union(
+                   from uo in _context.UnidadesOtras
+                   where uo.CodigoUnidades.StartsWith(json.idPad) && uo.CodigoUnidades.Trim() != json.idPad
+                   select new
+                   {
+                       uo.NombreSimple,
+                       uo.CodigoUnidades
+                   }
+                ).ToList();
+
+
+            return resultado;
 
         }
 
@@ -249,13 +278,23 @@ namespace WebTicket.Concrete
 
         public object ProgramarIndisponibilidad(ProgramarIndisponibilidad model)
         {
-            ProgramarIndisponibilidad indisponibilidad = new ProgramarIndisponibilidad();
-            //indisponibilidad.IdProgramarIndiponibilidad = 1;
-            indisponibilidad.IdEscritorio=model.IdEscritorio;
-            indisponibilidad.FechaInicio=model.FechaInicio;
-            indisponibilidad.HorasNoDisponible=model.HorasNoDisponible;
-            _context.ProgramarIndisponibilidad.Add(indisponibilidad);
-            return _context.SaveChanges() > 0 ? new HttpResult(true, HttpStatusCode.OK) : new HttpResult(false, HttpStatusCode.OK);
+            try
+            {
+                ProgramarIndisponibilidad indisponibilidad = new ProgramarIndisponibilidad();
+                //indisponibilidad.IdProgramarIndiponibilidad = 1;
+                indisponibilidad.IdEscritorio = model.IdEscritorio;
+                indisponibilidad.FechaInicio = model.FechaInicio;
+                indisponibilidad.HorasNoDisponible = model.HorasNoDisponible;
+                indisponibilidad.Motivo = model.Motivo;
+                _context.ProgramarIndisponibilidad.Add(indisponibilidad);
+                return _context.SaveChanges() > 0 ? new HttpResult(true, HttpStatusCode.OK) : new HttpResult(false, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+
+                return new HttpError(HttpStatusCode.BadRequest, ex.Message);
+            }
+            
 
         }
 
@@ -293,22 +332,25 @@ namespace WebTicket.Concrete
         public object ModificarProgramados(ProgramarIndisponibilidad model)
         {
 
-  
-              var res = _context.ProgramarIndisponibilidad.Update(model);
-
-            if (_context.SaveChanges() > 0)
+            try
             {
-                return new HttpResult(res, HttpStatusCode.OK);
+                var res = _context.ProgramarIndisponibilidad.Update(model);
+                if (_context.SaveChanges() > 0)
+                {
+                    return new HttpResult(true, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return new HttpResult(false, HttpStatusCode.OK);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return new HttpResult(res, HttpStatusCode.OK);
-            }
 
-            // return  ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.OK);
+                return new HttpError(HttpStatusCode.BadRequest, ex.Message);
+            }
 
         }
-
 
 
     }

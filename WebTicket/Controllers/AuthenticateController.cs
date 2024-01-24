@@ -36,7 +36,7 @@ namespace WebTicket.Controllers
                         value.Token = _jwtGenerate.CreateToken(value.CodigoUsuario);
                         value.ClaveUsuario = String.Empty;
                         value.PerfilUsuario = "";
-                        Usuario escritorio = _usuarios.ObtenerInfoUsuario(value.CodigoUsuario);
+                        Usuario escritorio = (Usuario)_usuarios.ObtenerInfoUsuario(value.CodigoUsuario);
                         value.IdEscritorio = escritorio.IdEscritorio;
                         value.CodigoUnidad = escritorio.CodigoUnidad;
                         value.NoEscritorio = escritorio.NoEscritorio;
@@ -56,6 +56,33 @@ namespace WebTicket.Controllers
 
             }
             return BadRequest("�Usuario(a) y clave no v�lidos!");
+        }
+
+
+        [HttpPost("ObtenerEscUsuario")]
+        public object ObtenerEscUsuario(UserRequestModel model)
+        {
+            var codigoUsuario = model.CodigoUsuario;
+                if (codigoUsuario!=null)
+                {
+                    try
+                    {
+
+                        var result = _usuarios.ObtenerInfoUsuario(codigoUsuario);
+
+                        return new HttpResult(result, HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        //return BadRequest("�El usuario no ha sido configurado!");
+
+                        return new HttpError(HttpStatusCode.BadRequest, ex.Message);
+                }
+
+                }
+
+                return BadRequest("�El usuario no ha sido configurado!");
+
         }
     }
 }

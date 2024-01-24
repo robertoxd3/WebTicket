@@ -6,6 +6,6 @@ namespace WebTicket.Interface
     {
         bool AuthenticateUsuario(string codigoUsuario, string claveUsuario);
 
-        Usuario ObtenerInfoUsuario(string codigoUsuario);
+        object ObtenerInfoUsuario(string codigoUsuario);
     }
 }

@@ -10,5 +10,7 @@ namespace WebTicket.ViewModel
         public DateTime? FechaInicio { get; set; }
         public int? HorasNoDisponible { get; set; }
 
+        public string? Motivo { get; set; }
+
     }
 }

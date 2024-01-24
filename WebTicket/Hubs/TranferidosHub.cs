@@ -31,18 +31,20 @@ namespace WebTicket.Hubs
 
         public async Task GetTicketTransferencias(string groupName, string codigoUnidad)
         {
-            var resultado = (from o in _context.OrdenPrioridadTicket
-                             join l in _context.LlamadaTicket on o.IdOrden equals l.IdOrden
-                             join u in _context.Unidades on o.CodigoUnidadRedirigir equals u.CodigoUnidades
-                             where o.Orden == 0 && o.Espera == "R" && o.CodigoUnidadRedirigir == codigoUnidad
-                             select new
-                             {
-                                 NumeroTicket = l.NumeroTicket,
-                                 FechaLlamada = l.FechaLlamada,
-                                 CodigoUnidades = o.CodigoUnidades,
-                                 CodigoUnidadRedirigir = o.CodigoUnidadRedirigir,
-                                 UnidadRedirigir = u.NombreSimple
-                             }).ToList();
+
+            var resultado = (from ot in _context.OrdenPrioridadTicket
+                            join t in _context.Ticket on ot.IdTiket equals t.IdTicket
+                            join u in _context.Unidades on ot.CodigoUnidadRedirigir equals u.CodigoUnidades
+                            where ot.Espera == "R" && ot.CodigoUnidadRedirigir == codigoUnidad
+                            select new
+                            {
+                                NumeroTicket = ot.NumeroTicket,
+                                CodigoUnidades = ot.CodigoUnidades,
+                                UnidadRedirigir = u.NombreSimple,
+                                CodigoUnidadRedirigir = ot.CodigoUnidadRedirigir,
+                                FechaLlamada = t.FechaTicket
+                            }).ToList();
+
             await Clients.Group(groupName).SendAsync("getTicketTransferencias", resultado);
         }
     }

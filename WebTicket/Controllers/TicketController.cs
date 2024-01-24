@@ -26,7 +26,7 @@ namespace WebTicket.Controllers
         }
 
         [HttpPost("getUnidades")]
-        public IEnumerable<Unidades> GetUnidades()
+        public object GetUnidades()
         {
             string jsonConfiguracion = Request.Headers["Configuracion"];
             //System.Diagnostics.Debug.WriteLine("Prueba 1: " + jsonConfiguracion);
@@ -35,9 +35,8 @@ namespace WebTicket.Controllers
             {
                 // Deserializar la cadena JSON
                 var configuracion = JsonConvert.DeserializeObject<JsonModel>(jsonConfiguracion);
-                //System.Diagnostics.Debug.WriteLine("Prueba 2: " + configuracion.config.codigoPad);
-                IEnumerable<Unidades> results = new List<Unidades>();
-                results = _tickets.GetUnidades(configuracion);
+         
+               var results=_tickets.GetUnidades(configuracion);
 
                 return results;
             }
@@ -45,12 +44,10 @@ namespace WebTicket.Controllers
         }
 
         [HttpPost("getUnidadesUser")]
-        public IEnumerable<Unidades> GetUnidades([FromBody] Usuario usuario)
+        public object GetUnidades([FromBody] Usuario usuario)
         {
-                IEnumerable<Unidades> results = new List<Unidades>();
-                results = _tickets.GetUnidades(usuario);
+                var results = _tickets.GetUnidades(usuario);
                 return results;
-
         }
 
 
@@ -147,7 +144,7 @@ namespace WebTicket.Controllers
         }
 
         [HttpPost("ModificarProgramados")]
-        public object ModificarProgramados( ProgramarIndisponibilidad model)
+        public object ModificarProgramados([FromBody] ProgramarIndisponibilidad model)
         {
             return _tickets.ModificarProgramados(model);
         }
