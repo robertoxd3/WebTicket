@@ -92,7 +92,7 @@ namespace WebTicket.Controllers
             try
             {
                 var data = _context.LlamadaTicket.Where(l => l.Estado == "F" && l.CodigoUsuario == request.codigoUsuario)
-                    .OrderByDescending(l=>l.FechaFinalizacion).ToList();
+                    .OrderByDescending(l=>l.FechaFinalizacion).Take(25).ToList();
                 return Ok(data);
             }
             catch (SqlException ex)
