@@ -192,6 +192,11 @@ namespace WebTicket.Concrete
             var countEjecutivos = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S")
                         .Count();
+
+            if (countEjecutivos == 0)
+            {
+                return (true, "OK");
+            }
             if(countEjecutivos>= 2)
             {
                 return (true, "OK");
