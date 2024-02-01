@@ -4,17 +4,19 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using ServiceStack;
 using WebTicket.Concrete.Function;
 using WebTicket.Interface;
 using WebTicket.ViewModel;
 
-
 namespace WebTicket.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
     public class TicketController : Controller
     {
@@ -123,6 +125,14 @@ namespace WebTicket.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
 
+        }
+
+        
+        [HttpGet("ValidarDisponibilidad/{codigoUnidad}")]
+        public object ValidarDisponibilidad(string codigoUnidad)
+        {
+            var resp = _tickets.validarDisponibilidad(codigoUnidad);
+          return new HttpResult(resp, HttpStatusCode.OK);
         }
 
         [HttpPost("ProgramarDisponibilidad")]

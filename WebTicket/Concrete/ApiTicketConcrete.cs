@@ -163,14 +163,28 @@ namespace WebTicket.Concrete
              
                 if (resultado.Item1)
                 {
+
+
+                    //var resImp= ImprimirTicket(codigoUnidad, idFila, json, resultado.Item2);
+                    //var status = resImp.GetType().GetProperty("Status")?.GetValue(resImp);
+
+
+                    //if (status is HttpStatusCode httpStatusCode && httpStatusCode == HttpStatusCode.OK)
+                    //{
+                    //   //_context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
+                    //    return resImp;
+                    //}
+                    //else
+                    //    return new HttpResult(true, HttpStatusCode.OK);
+
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
                     if (result > 0)
                     {
-                        return ImprimirTicket(codigoUnidad, idFila, json,resultado.Item2);
+                        return ImprimirTicket(codigoUnidad, idFila, json, resultado.Item2);
                     }
                     else
                         return new HttpResult(true, HttpStatusCode.OK);
-                       
+
                 }
                 else
                 {
@@ -181,13 +195,13 @@ namespace WebTicket.Concrete
             }
             catch (Exception)
             {
-                throw;
+                return new HttpError(HttpStatusCode.BadRequest, "No se pudo generar el ticket");
             }
           
         }
 
 
-        private (bool, string) validarDisponibilidad(string codigoUnidad)
+        public (bool, string) validarDisponibilidad(string codigoUnidad)
         {
             var countEjecutivos = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S")
@@ -231,53 +245,80 @@ namespace WebTicket.Concrete
         }
 
         public object ImprimirTicket(string codigoUnidad, int idFila, JsonModel json,string mensajeTiempo)
-        {         
-            //obtnere el idControlTicket dependiendo del codigoUnidad y el idFila seleccionado en el frontend
-            var controlTicket = _context.ControlTicket
-            .Where(ct => ct.CodigoUnidades == codigoUnidad && ct.IdTipoFila == idFila)
-            .FirstOrDefault();
-          
-            //Obtener el ultimo ticket ingresado 
-            var resultado = _context.Ticket
-            .Where(t => t.IdControlTicket == controlTicket.IdControlTicket)
-            .OrderByDescending(t => t.FechaTicket)
-            .FirstOrDefault();
-
- 
-            var pagadurias = _context.Pagaduria
-                    .Where(p => p.CodigoUnidadOrganizacional == json.config.codigoPad)
-                    .Select(p => new
-                    {
-                        p.CodigoPagaduria,
-                        p.PagaduriaNombre,
-                        Departamento = p.Departamento.ToUpper().Replace("Á", "A").Replace("Ó", "O").Replace("Ñ", "N"),
-                        p.CodigoUnidadOrganizacional,
-                        p.CodigoUnidades
-                    }).FirstOrDefault();
-
-            var unidad = _context.Unidades
-            .Where(ct => ct.CodigoUnidades == codigoUnidad)
-            .Select(u=> new{
-                u.CodigoUnidades,
-                NombreSimple = u.NombreSimple.Replace("Ñ","N").Replace("Ó","O")
-            }).FirstOrDefault();
-
-
-            TicketImprimir ticket = new TicketImprimir();
-            string fechaComoString = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
-            ticket.IdTicket = resultado.IdTicket;
-            ticket.NumeroTicket = resultado.NumeroTicket;
-            ticket.FechaTicket=fechaComoString;
-            ticket.Departamento = pagadurias.Departamento;
-    
-            ticket.NombreSimple = unidad.NombreSimple;
-         
-
-            //return ticket;
-            return new HttpResult(ticket, HttpStatusCode.OK)
+        {
+            try
             {
-                StatusDescription = mensajeTiempo
-            };
+                //obtnere el idControlTicket dependiendo del codigoUnidad y el idFila seleccionado en el frontend
+                var controlTicket = _context.ControlTicket
+                .Where(ct => ct.CodigoUnidades == codigoUnidad && ct.IdTipoFila == idFila)
+                .FirstOrDefault();
+
+                //Obtener el ultimo ticket ingresado 
+                var resultado = _context.Ticket
+                .Where(t => t.IdControlTicket == controlTicket.IdControlTicket)
+                .OrderByDescending(t => t.FechaTicket)
+                .FirstOrDefault();
+
+
+                var pagadurias = _context.Pagaduria
+                        .Where(p => p.CodigoUnidadOrganizacional == json.config.codigoPad)
+                        .Select(p => new
+                        {
+                            p.CodigoPagaduria,
+                            p.PagaduriaNombre,
+                            Departamento = p.Departamento.ToUpper().Replace("Á", "A").Replace("Ó", "O").Replace("Ñ", "N"),
+                            p.CodigoUnidadOrganizacional,
+                            p.CodigoUnidades
+                        }).FirstOrDefault();
+
+                //var unidad = _context.Unidades
+                //.Where(ct => ct.CodigoUnidades == codigoUnidad)
+                //.Select(u=> new{
+                //    u.CodigoUnidades,
+                //    NombreSimple = u.NombreSimple.Replace("Ñ","N").Replace("Ó","O")
+                //}).FirstOrDefault();
+
+                var unidad = (from u in _context.Unidades
+                              where u.CodigoUnidades==(codigoUnidad) 
+                              select new
+                              {
+                                  NombreSimple = u.NombreSimple,
+                                  u.CodigoUnidades
+                              })
+
+                    .Union(
+                       from uo in _context.UnidadesOtras
+                       where uo.CodigoUnidades==(codigoUnidad)
+                       select new
+                       {
+                           NombreSimple = uo.NombreSimple,
+                           uo.CodigoUnidades
+                       }
+                    ).FirstOrDefault();
+
+
+                TicketImprimir ticket = new TicketImprimir();
+                string fechaComoString = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
+                ticket.IdTicket = resultado.IdTicket;
+                ticket.NumeroTicket = resultado.NumeroTicket;
+                ticket.FechaTicket = fechaComoString;
+                ticket.Departamento = pagadurias.Departamento;
+
+                ticket.NombreSimple = unidad.NombreSimple;
+
+
+                //return ticket;
+                return new HttpResult(ticket, HttpStatusCode.OK)
+                {
+                    StatusDescription = mensajeTiempo
+                };
+            }
+            catch (Exception)
+            {
+
+                return new HttpError(HttpStatusCode.BadRequest, "F");
+            }
+            
 
         }
 

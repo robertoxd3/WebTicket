@@ -46,11 +46,29 @@ namespace WebTicket.Hubs
 
         public async Task ObtenerTicketEnCola(string groupName, Usuario usuario)
         {
+            var unidad = (from u in _context.Unidades
+                          where u.CodigoUnidades == (usuario.CodigoUnidad)
+                          select new
+                          {
+                              NombreSimple = u.NombreSimple,
+                              u.CodigoUnidades
+                          })
+
+                    .Union(
+                       from uo in _context.UnidadesOtras
+                       where uo.CodigoUnidades == (usuario.CodigoUnidad)
+                       select new
+                       {
+                           NombreSimple = uo.NombreSimple,
+                           uo.CodigoUnidades
+                       }
+                    ).FirstOrDefault();
+
             var data = (from o in _context.OrdenPrioridadTicket
                         join c in _context.ControlTicket on o.IdControlTiket equals c.IdControlTicket
                         join t in _context.Ticket on o.IdTiket equals t.IdTicket
-                        join u in _context.Unidades on c.CodigoUnidades equals u.CodigoUnidades
                         join e in _context.Escritorio on c.CodigoUsuario equals e.CodigoUsuario
+                        //join u in _context.Unidades on e.CodigoUnidad equals u.CodigoUnidades
                         where c.CodigoUnidades==usuario.CodigoUnidad && o.Espera == "S"
                         select new
                         {
@@ -58,7 +76,7 @@ namespace WebTicket.Hubs
                             Orden = o.Orden,
                             CodigoUsuario = c.CodigoUsuario,
                             CodigoUnidades = c.CodigoUnidades,
-                            NombreSimple = u.NombreSimple,
+                            NombreSimple = unidad.NombreSimple,
                             IdEscritorio = e.IdEscritorio
                         }).OrderBy(o=>o.Orden).ToList();
 

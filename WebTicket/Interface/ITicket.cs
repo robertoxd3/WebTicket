@@ -24,5 +24,7 @@ namespace WebTicket.Interface
 
         object ModificarProgramados(ProgramarIndisponibilidad model);
 
+        (bool, string) validarDisponibilidad(string codigoUnidad);
+
     }
 }
