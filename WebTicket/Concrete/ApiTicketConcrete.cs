@@ -10,6 +10,7 @@ using Microsoft.Identity.Client;
 using ServiceStack;
 using System.Net;
 using System.Diagnostics;
+using Azure.Core;
 
 namespace WebTicket.Concrete
 {
@@ -164,19 +165,6 @@ namespace WebTicket.Concrete
                 if (resultado.Item1)
                 {
 
-
-                    //var resImp= ImprimirTicket(codigoUnidad, idFila, json, resultado.Item2);
-                    //var status = resImp.GetType().GetProperty("Status")?.GetValue(resImp);
-
-
-                    //if (status is HttpStatusCode httpStatusCode && httpStatusCode == HttpStatusCode.OK)
-                    //{
-                    //   //_context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
-                    //    return resImp;
-                    //}
-                    //else
-                    //    return new HttpResult(true, HttpStatusCode.OK);
-
                     result = _context.Database.ExecuteSql($"EXECUTE [UAP].CreacionTicket {param1}, {param2}");
                     if (result > 0)
                     {
@@ -203,17 +191,65 @@ namespace WebTicket.Concrete
 
         public (bool, string) validarDisponibilidad(string codigoUnidad)
         {
-            var countEjecutivos = _context.Escritorio
-                        .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S")
-                        .Count();
+            var ejecutivos = _context.Escritorio
+                        .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S").ToList();
+            var countEjecutivos = ejecutivos.Count();
 
             if (countEjecutivos == 0)
             {
                 return (true, "OK");
             }
-            if(countEjecutivos>= 2)
+            if (countEjecutivos >= 2)
             {
-                return (true, "OK");
+                List<object> resulEjecutivosProgramados = new List<object>();
+                List<string> validarProgramados = new List<string>();
+                List<DateTime> fechasEjecutivo = new List<DateTime>();
+                foreach (var eje in ejecutivos)
+                {
+                    var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == eje.IdEscritorio).OrderByDescending(x => x.IdProgramarIndiponibilidad).FirstOrDefault();
+                    if (revisar != null)
+                    {
+                        DateTime fechaActual = DateTime.Now;
+                        DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
+                        if (fechaActual.Date == revisar.FechaInicio?.Date)
+                        {
+                            DateTime nuevaFecha = fechaActual.AddHours((double)revisar.HorasNoDisponible);
+                            if (nuevaFecha > limite)
+                            {
+                                validarProgramados.Add("S");
+                                
+                                //return (false, "Hasta Mañana.");
+                            }
+                            else
+                            {
+                                validarProgramados.Add("N");
+                                fechasEjecutivo.Add(nuevaFecha);
+                                // return (true, "" + nuevaFecha.ToString("HH:mm:ss"));
+                            }
+                        }
+                    }
+
+                }
+                var contadorV = 0;
+                foreach (var v in validarProgramados)
+                {
+                    if(v=="S")
+                    {
+                       contadorV++;
+                    }
+                }
+                if (contadorV == ejecutivos.Count)
+                {
+                    return (false, "Hasta Mañana.");
+                }
+                else
+                {
+                    if (fechasEjecutivo.Count == 0)
+                    return (true, "OK");
+                    else
+                    return (true, fechasEjecutivo[0].ToString("HH:mm:ss"));
+
+                }
             }
             else
             {

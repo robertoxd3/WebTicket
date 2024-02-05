@@ -132,7 +132,14 @@ namespace WebTicket.Controllers
         public object ValidarDisponibilidad(string codigoUnidad)
         {
             var resp = _tickets.validarDisponibilidad(codigoUnidad);
-          return new HttpResult(resp, HttpStatusCode.OK);
+            if (resp.Item2 != "OK" && resp.Item1 == true) 
+            {
+                List<string> it = new List<string>();
+                it.Add("V");
+                it.Add(resp.Item2);
+                return new HttpResult(it, HttpStatusCode.OK);
+            }
+          return new HttpResult(resp.Item1, HttpStatusCode.OK);
         }
 
         [HttpPost("ProgramarDisponibilidad")]
