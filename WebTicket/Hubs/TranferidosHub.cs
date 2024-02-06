@@ -5,6 +5,7 @@ using WebTicket.ViewModel;
 using WebTicket.Interface;
 using Microsoft.AspNetCore.SignalR;
 using WebTicket.Concrete;
+using ServiceStack;
 
 namespace WebTicket.Hubs
 {
@@ -31,16 +32,33 @@ namespace WebTicket.Hubs
 
         public async Task GetTicketTransferencias(string groupName, string codigoUnidad)
         {
+            var unidades = (from u in _context.Unidades
+            where u.CodigoUnidades == codigoUnidad
+                            select new
+            {
+                                 u.NombreSimple,
+                                 u.CodigoUnidades
+                             })
+
+                .Union(
+                   from uo in _context.UnidadesOtras
+                   where uo.CodigoUnidades == codigoUnidad
+            select new
+            {
+                uo.NombreSimple,
+                uo.CodigoUnidades
+                   }
+                ).FirstOrDefault();
 
             var resultado = (from ot in _context.OrdenPrioridadTicket
                             join t in _context.Ticket on ot.IdTiket equals t.IdTicket
-                            join u in _context.Unidades on ot.CodigoUnidadRedirigir equals u.CodigoUnidades
+                            //join u in _context.Unidades on ot.CodigoUnidadRedirigir equals u.CodigoUnidades
                             where ot.Espera == "R" && ot.CodigoUnidadRedirigir == codigoUnidad
                             select new
                             {
                                 NumeroTicket = ot.NumeroTicket,
                                 CodigoUnidades = ot.CodigoUnidades,
-                                UnidadRedirigir = u.NombreSimple,
+                                UnidadRedirigir = unidades.NombreSimple,
                                 CodigoUnidadRedirigir = ot.CodigoUnidadRedirigir,
                                 FechaLlamada = t.FechaTicket
                             }).ToList();
