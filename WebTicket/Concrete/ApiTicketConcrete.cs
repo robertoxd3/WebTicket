@@ -11,6 +11,8 @@ using ServiceStack;
 using System.Net;
 using System.Diagnostics;
 using Azure.Core;
+using System.Globalization;
+using System;
 
 namespace WebTicket.Concrete
 {
@@ -177,7 +179,7 @@ namespace WebTicket.Concrete
                 else
                 {
                
-                    return new HttpError(HttpStatusCode.BadRequest, "No se pudo crear el ticket por que no hay personal activo para la unidad seleccionada, se espera servicio "+resultado.Item2);
+                    return new HttpError(HttpStatusCode.BadRequest, "Por favor, consulte con el despacho del procurador para solventar su atención o llame al 2231-9484 opcion 1, se espera servicio " + resultado.Item2);
                 }
 
             }
@@ -197,19 +199,23 @@ namespace WebTicket.Concrete
 
             if (countEjecutivos == 0)
             {
-                return (true, "OK");
+                return (false, "No Hay Ejecutivos configurados para esta unidad");
             }
             if (countEjecutivos >= 2)
             {
                 List<object> resulEjecutivosProgramados = new List<object>();
                 List<string> validarProgramados = new List<string>();
                 List<DateTime> fechasEjecutivo = new List<DateTime>();
+                DateTime fechaMenor = new DateTime(2050, 12, 31);
+                var banderaSinIndisponibilidad = 0;
                 foreach (var eje in ejecutivos)
                 {
-                    var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == eje.IdEscritorio).OrderByDescending(x => x.IdProgramarIndiponibilidad).FirstOrDefault();
+                    DateTime fechaHoy = DateTime.Now.Date;
+                    var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == eje.IdEscritorio && x.FechaInicio.Value.Date == fechaHoy).OrderByDescending(x => x.IdProgramarIndiponibilidad).FirstOrDefault();
                     if (revisar != null)
                     {
-                        DateTime fechaActual = DateTime.Now;
+                        DateTime fechaActual = revisar.FechaInicio.Value;
+                        //fechaActual = DateTime.Now;
                         DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
                         if (fechaActual.Date == revisar.FechaInicio?.Date)
                         {
@@ -224,9 +230,15 @@ namespace WebTicket.Concrete
                             {
                                 validarProgramados.Add("N");
                                 fechasEjecutivo.Add(nuevaFecha);
+                                if(nuevaFecha<fechaMenor)
+                                    fechaMenor=nuevaFecha;
                                 // return (true, "" + nuevaFecha.ToString("HH:mm:ss"));
                             }
                         }
+                    }
+                    else
+                    {
+                        banderaSinIndisponibilidad++;
                     }
 
                 }
@@ -244,22 +256,33 @@ namespace WebTicket.Concrete
                 }
                 else
                 {
-                    if (fechasEjecutivo.Count == 0)
-                    return (true, "OK");
+                    if (validarProgramados.Count == 0)
+                    {
+                        if (ejecutivos.Count > fechasEjecutivo.Count)
+                            return (true, "OK");
+                        else
+                            return (true, fechaMenor.ToString("HH:mm:ss"));
+                    }
                     else
-                    return (true, fechasEjecutivo[0].ToString("HH:mm:ss"));
-
+                    {
+                        if(validarProgramados.Count>0 && fechasEjecutivo.Count==0)
+                            return (true, "OK");
+                        else if(banderaSinIndisponibilidad>0)
+                            return (true, "OK");
+                        else
+                            return (true, fechaMenor.ToString("HH:mm:ss"));
+                    }
                 }
             }
             else
             {
                 var ejecutivo = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S").First();
-
-                var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio).OrderByDescending(x=>x.IdProgramarIndiponibilidad).FirstOrDefault();
+                DateTime fechaHoy = DateTime.Now.Date;
+                var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio && x.FechaInicio.Value.Date == fechaHoy).OrderByDescending(x=>x.IdProgramarIndiponibilidad).FirstOrDefault();
                 if (revisar!=null)
                 {
-                    DateTime fechaActual = DateTime.Now;
+                    DateTime fechaActual = revisar.FechaInicio.Value;
                     DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
                     if (fechaActual.Date == revisar.FechaInicio?.Date )
                     {
@@ -362,10 +385,12 @@ namespace WebTicket.Concrete
         {
             try
             {
+                DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+
                 ProgramarIndisponibilidad indisponibilidad = new ProgramarIndisponibilidad();
                 //indisponibilidad.IdProgramarIndiponibilidad = 1;
                 indisponibilidad.IdEscritorio = model.IdEscritorio;
-                indisponibilidad.FechaInicio = model.FechaInicio;
+                indisponibilidad.FechaInicio = currentTime;
                 indisponibilidad.HorasNoDisponible = model.HorasNoDisponible;
                 indisponibilidad.Motivo = model.Motivo;
                 _context.ProgramarIndisponibilidad.Add(indisponibilidad);
@@ -416,6 +441,9 @@ namespace WebTicket.Concrete
 
             try
             {
+
+                DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+                model.FechaInicio = currentTime;
                 var res = _context.ProgramarIndisponibilidad.Update(model);
                 if (_context.SaveChanges() > 0)
                 {

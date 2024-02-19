@@ -26,6 +26,10 @@ namespace WebTicket.Concrete
 
         public DbSet<ProgramarIndisponibilidad> ProgramarIndisponibilidad { get; set; }
 
+        public DbSet<DetalleTicketAsesoria> DetalleTicketAsesoria { get; set; }
+
+        public DbSet<Asesoria> Asesoria { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pagaduria> ().HasKey(k => new { k.CodigoPagaduria });
@@ -40,6 +44,8 @@ namespace WebTicket.Concrete
             modelBuilder.Entity<Escritorio>().HasKey(k => new { k.IdEscritorio });
             modelBuilder.Entity<OrdenPrioridadTicket>().ToTable(tb => tb.HasTrigger("RedirigirUnidad"));
             modelBuilder.Entity<ProgramarIndisponibilidad>().HasKey(k => new { k.IdProgramarIndiponibilidad });
+            modelBuilder.Entity<DetalleTicketAsesoria>().HasKey(k => new { k.IdDetalleTicketAsesoria });
+            modelBuilder.Entity<Asesoria>().HasKey(k => new { k.IdRegistro });
         }
     }
 }

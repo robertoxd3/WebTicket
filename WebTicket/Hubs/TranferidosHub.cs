@@ -60,7 +60,7 @@ namespace WebTicket.Hubs
                                 CodigoUnidades = ot.CodigoUnidades,
                                 UnidadRedirigir = unidades.NombreSimple,
                                 CodigoUnidadRedirigir = ot.CodigoUnidadRedirigir,
-                                FechaLlamada = t.FechaTicket
+                                FechaLlamada = t.FechaTicket,
                             }).ToList();
 
             await Clients.Group(groupName).SendAsync("getTicketTransferencias", resultado);

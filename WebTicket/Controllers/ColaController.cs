@@ -92,7 +92,7 @@ namespace WebTicket.Controllers
             try
             {
                 var data = _context.LlamadaTicket.Where(l => l.Estado == "F" && l.CodigoUsuario == request.codigoUsuario)
-                    .OrderByDescending(l=>l.FechaFinalizacion).Take(25).ToList();
+                    .OrderByDescending(l=>l.FechaFinalizacion).ToList();
                 return Ok(data);
             }
             catch (SqlException ex)
@@ -100,6 +100,158 @@ namespace WebTicket.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("GetHistorialUnidad/{codigoUnidad}")]
+        public object GetHistorialUnidad(string codigoUnidad)
+        {
+            try
+            {
+                var unidad = (from u in _context.Unidades
+                              where u.CodigoUnidades == (codigoUnidad)
+                              select new
+                              {
+                                  NombreSimple = u.NombreSimple,
+                                  u.CodigoUnidades
+                              })
+
+                    .Union(
+                       from uo in _context.UnidadesOtras
+                       where uo.CodigoUnidades == (codigoUnidad)
+                       select new
+                       {
+                           NombreSimple = uo.NombreSimple,
+                           uo.CodigoUnidades
+                       }
+                    ).FirstOrDefault();
+
+                var resultado = (from l in _context.LlamadaTicket
+                                 join e in _context.Escritorio on l.IdEscritorio equals e.IdEscritorio
+                                 where e.CodigoUnidad == codigoUnidad
+                                 select new
+                                 {
+                                     IdLlamadaTicket=l.IdLlamadaTicket,
+                                     NumeroTicket = l.NumeroTicket,
+                                     FechaLlamada = l.FechaLlamada,
+                                     FechaFinalizacion = l.FechaFinalizacion,
+                                     CodigoUnidad = e.CodigoUnidad,
+                                     Unidad = unidad.NombreSimple,
+                                     CodigoUsuario=e.CodigoUsuario,
+                                     IdEscritorio = e.IdEscritorio,
+                                 }).ToList().OrderByDescending(x=>x.IdLlamadaTicket);
+                return new HttpResult(resultado, HttpStatusCode.OK);
+            }
+            catch (SqlException ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,
+                   "Error obtener los datos" + ex.Message.ToString());
+            }
+        }
+
+        [HttpGet("GetHistorialUsuario/{codigoUnidad}")]
+        public object GetHistorialUsuario(string codigoUnidad)
+        {
+            //string codigoUsuario
+            try
+            {
+                DateTime fechaHoy=DateTime.Now.Date;
+
+
+
+                var fechaActual = DateTime.Now.Date;
+
+
+                var resultado = (from l in _context.LlamadaTicket
+                                 join e in _context.Escritorio on l.IdEscritorio equals e.IdEscritorio
+                                 where e.CodigoUnidad == codigoUnidad && l.FechaLlamada.Value.Date == fechaHoy
+                                 select new
+                                 {
+                                     IdLlamadaTicket = l.IdLlamadaTicket,
+                                     NumeroTicket = l.NumeroTicket,
+                                     FechaLlamada = l.FechaLlamada,
+                                     FechaFinalizacion = l.FechaFinalizacion,
+                                     CodigoUnidad = e.CodigoUnidad,
+                                     CodigoUsuario = e.CodigoUsuario,
+                                     IdEscritorio = e.IdEscritorio,
+                                     IdOrden= l.IdOrden
+                                 }).ToList().OrderByDescending(x => x.IdLlamadaTicket);
+                return new HttpResult(resultado, HttpStatusCode.OK);
+            }
+            catch (SqlException ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,
+                   "Error obtener los datos" + ex.Message.ToString());
+            }
+        }
+
+        [HttpPost("ValidarDetalleTicketAsesoria")]
+        public object ValidarDetalleTicketAsesoria(DetalleAsesoriaRequest req)
+        {
+            try
+            {
+
+                var resultado = (from l in _context.DetalleTicketAsesoria
+                                 where l.IdOrden == req.IdOrden && l.IdRegistro!=null
+                                 select new
+                                 {
+                                     idRegistro=l.IdRegistro
+
+                                 }).FirstOrDefault();
+
+                if (resultado == null)
+                {
+                    return new HttpError(HttpStatusCode.BadRequest,"No se encontro");
+                }
+                var resAsesoria = (from a in _context.Asesoria
+                                 where a.IdRegistro == resultado.idRegistro
+                                 select new
+                                 {
+                                     Datos = a,
+                                     IdRegistro=resultado.idRegistro,
+                                 }).FirstOrDefault();
+
+
+                return new HttpResult(resAsesoria, HttpStatusCode.OK);
+            }
+            catch (SqlException ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,
+                   "Error obtener los datos" + ex.Message.ToString());
+            }
+        }
+
+        [HttpPost("ActualizarMotivoDetalleAsesoria")]
+        public object ActualizarMotivoDetalleAsesoria(DetalleAsesoriaRequest req)
+        {
+            try
+            {
+                var detalleTicket = _context.DetalleTicketAsesoria.Where(x=>x.IdOrden == req.IdOrden && x.IdRegistro == null).FirstOrDefault();
+                if (detalleTicket != null)
+                {
+                    detalleTicket.MotivoAsistencia = req.MotivoAsistencia;
+                    detalleTicket.IdRegistro = req.IdRegistro;
+                    _context.SaveChanges();
+                    return new HttpResult(detalleTicket, HttpStatusCode.OK);
+                }
+                else
+                {
+                    var detalleTicketVal = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro != null).OrderByDescending(x=>x.IdDetalleTicketAsesoria).FirstOrDefault();
+                    if (detalleTicketVal != null)
+                    {
+                        detalleTicketVal.MotivoAsistencia = req.MotivoAsistencia;
+                        detalleTicketVal.IdRegistro = req.IdRegistro;
+                        _context.SaveChanges();
+                        return new HttpResult(detalleTicketVal, HttpStatusCode.OK);
+                    }
+                    return new HttpResult(detalleTicket, HttpStatusCode.OK);
+                }
+            }
+            catch (SqlException ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,
+                   "Error obtener los datos" + ex.Message.ToString());
+            }
+        }
+
 
         [HttpPost("TransferirTicket")]
         public bool TransferirTicket([FromBody] OrdenPrioridadTicket ticket)
@@ -152,6 +304,70 @@ namespace WebTicket.Controllers
             catch (SqlException ex)
             {
                 return BadRequest( "Error en la Base de datos" + ex);
+            }
+        }
+
+        [HttpPost("ActualizarDetalleAsesoria")]
+        public object ActualizarDetalleAsesoria( DetalleAsesoriaRequest data)
+        {
+            try
+            {
+                var detalleTicket = _context.DetalleTicketAsesoria.FirstOrDefault(d => d.IdLlamadaTicket == data.IdLlamadaTicket);
+                if (detalleTicket != null)
+                {
+                    detalleTicket.IdRegistro = data.IdRegistro;
+                    detalleTicket.MotivoAsistencia = data.MotivoAsistencia;
+                    _context.SaveChanges();
+                    return new HttpResult(detalleTicket, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return new HttpError(HttpStatusCode.BadRequest,"No se encontro el campo IdDetalleTicketAsesoria");
+                }
+            }
+            catch (SqlException ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,
+                   "Error al modificar detalleAsesoria" + ex.Message.ToString());
+            }
+        }
+
+        [HttpPost("ReaperturaTicket")]
+        public object ReaperturaTicket(ReaperturaTicketRequest req)
+        {
+
+            var idEsc = new SqlParameter("@idEscritorio", SqlDbType.NVarChar)
+            {
+                Value = req.IdEscritorio
+            };
+
+            var idLla = new SqlParameter("@idLlamada", SqlDbType.NVarChar)
+            {
+                Value = req.IdLlamadaTicket
+            };
+
+            var codUsuario = new SqlParameter("@CodigoUsuario", SqlDbType.NVarChar)
+            {
+                Value = req.CodigoUsuario
+            };
+
+            try
+            {
+                var result = _context.Database.ExecuteSqlRaw($"EXECUTE UAP.ReaperturaTicket @idEscritorio,@idLlamada,@CodigoUsuario ", idEsc, idLla, codUsuario);
+                if (result > 0)
+                {
+                    return new HttpResult(result, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return new HttpError(HttpStatusCode.BadRequest, "No se pudo reaperturar");
+                }
+                
+            }
+            catch (SqlException ex)
+            {
+
+                return new HttpError(HttpStatusCode.BadRequest, ex.Message);
             }
         }
 
