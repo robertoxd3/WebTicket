@@ -222,24 +222,48 @@ namespace WebTicket.Controllers
         [HttpPost("ActualizarMotivoDetalleAsesoria")]
         public object ActualizarMotivoDetalleAsesoria(DetalleAsesoriaRequest req)
         {
-            try
+         
+
+
+             try
             {
-                var detalleTicket = _context.DetalleTicketAsesoria.Where(x=>x.IdOrden == req.IdOrden && x.IdRegistro == null).FirstOrDefault();
+   
+                var detalleTicket = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro == null).FirstOrDefault();
                 if (detalleTicket != null)
                 {
-                    detalleTicket.MotivoAsistencia = req.MotivoAsistencia;
-                    detalleTicket.IdRegistro = req.IdRegistro;
-                    _context.SaveChanges();
+                    var idReg = new SqlParameter("@idRegistro", SqlDbType.NVarChar)
+                    {
+                        Value = req.IdRegistro
+                    };
+
+                    var idDet = new SqlParameter("@idDetalle", SqlDbType.NVarChar)
+                    {
+                        Value = detalleTicket.IdDetalleTicketAsesoria
+                    };
+                    var result = _context.Database.ExecuteSqlRaw($"EXECUTE [UAP].[ActualizarDetalle] @idRegistro,@idDetalle", idReg, idDet);
+                    //detalleTicket.MotivoAsistencia = req.MotivoAsistencia;
+                    //detalleTicket.IdRegistro = req.IdRegistro;
+                    //_context.SaveChanges();
                     return new HttpResult(detalleTicket, HttpStatusCode.OK);
                 }
                 else
                 {
-                    var detalleTicketVal = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro != null).OrderByDescending(x=>x.IdDetalleTicketAsesoria).FirstOrDefault();
+                    var detalleTicketVal = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro != null).OrderByDescending(x => x.IdDetalleTicketAsesoria).FirstOrDefault();
                     if (detalleTicketVal != null)
                     {
-                        detalleTicketVal.MotivoAsistencia = req.MotivoAsistencia;
-                        detalleTicketVal.IdRegistro = req.IdRegistro;
-                        _context.SaveChanges();
+                        var idReg = new SqlParameter("@idRegistro", SqlDbType.NVarChar)
+                        {
+                            Value = req.IdRegistro
+                        };
+
+                        var idDet = new SqlParameter("@idDetalle", SqlDbType.NVarChar)
+                        {
+                            Value = detalleTicket.IdDetalleTicketAsesoria
+                        };
+                        var result = _context.Database.ExecuteSqlRaw($"EXECUTE [UAP].[ActualizarDetalle] @idRegistro,@idDetalle", idReg, idDet);
+                        //detalleTicketVal.MotivoAsistencia = req.MotivoAsistencia;
+                        //detalleTicketVal.IdRegistro = req.IdRegistro;
+                        //_context.SaveChanges();
                         return new HttpResult(detalleTicketVal, HttpStatusCode.OK);
                     }
                     return new HttpResult(detalleTicket, HttpStatusCode.OK);
