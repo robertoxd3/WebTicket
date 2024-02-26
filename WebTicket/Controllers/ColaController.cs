@@ -201,16 +201,38 @@ namespace WebTicket.Controllers
                 {
                     return new HttpError(HttpStatusCode.BadRequest,"No se encontro");
                 }
-                var resAsesoria = (from a in _context.Asesoria
-                                 where a.IdRegistro == resultado.idRegistro
-                                 select new
-                                 {
-                                     Datos = a,
-                                     IdRegistro=resultado.idRegistro,
-                                 }).FirstOrDefault();
+                if (req.Bandera==1)
+                {
+                  var resultado2 = (from l in _context.DetalleTicketAsesoria
+                                     where l.IdOrden == req.IdOrden && l.IdRegistro != null
+                                     select new
+                                     {
+                                         idDetalle=l.IdDetalleTicketAsesoria,
+                                         idRegistro = l.IdRegistro,
+                                     }).OrderByDescending(x => x.idDetalle).FirstOrDefault();
+                    var resAsesoria = (from a in _context.Asesoria
+                                       where a.IdRegistro == resultado2.idRegistro
+                                       select new
+                                       {
+                                           Datos = a,
+                                           IdRegistro = resultado.idRegistro,
+                                           IdOrden = req.IdOrden
+                                       }).FirstOrDefault();
+                    return new HttpResult(resAsesoria, HttpStatusCode.OK);
+                }
+                else
+                {
+                    var resAsesoria = (from a in _context.Asesoria
+                                       where a.IdRegistro == resultado.idRegistro
+                                       select new
+                                       {
+                                           Datos = a,
+                                           IdRegistro = resultado.idRegistro,
+                                           IdOrden = req.IdOrden
+                                       }).FirstOrDefault();
+                    return new HttpResult(resAsesoria, HttpStatusCode.OK);
+                }
 
-
-                return new HttpResult(resAsesoria, HttpStatusCode.OK);
             }
             catch (SqlException ex)
             {
@@ -222,15 +244,57 @@ namespace WebTicket.Controllers
         [HttpPost("ActualizarMotivoDetalleAsesoria")]
         public object ActualizarMotivoDetalleAsesoria(DetalleAsesoriaRequest req)
         {
-         
-
-
              try
             {
-   
+                //var detalleTicket = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro == null).FirstOrDefault();
+                //if (detalleTicket != null)
+                //{
+                //    detalleTicket.MotivoAsistencia = req.MotivoAsistencia;
+                //    //detalleTicket.IdRegistro = req.IdRegistro;
+                //    _context.SaveChanges();
+                //    return new HttpResult(detalleTicket, HttpStatusCode.OK);
+                //}
+                //else
+                //{
+                    var detalleTicketVal = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro != null).OrderByDescending(x => x.IdDetalleTicketAsesoria).FirstOrDefault();
+                    if (detalleTicketVal != null)
+                    {
+                        detalleTicketVal.MotivoAsistencia = req.MotivoAsistencia;
+                        _context.SaveChanges();
+
+                         var asesoriaUpdate = _context.Asesoria.Where(x => x.IdRegistro == detalleTicketVal.IdRegistro).FirstOrDefault();
+                        if(asesoriaUpdate != null)
+                        {
+                             asesoriaUpdate.MotivoAsistencia = req.MotivoAsistencia;
+                            _context.SaveChanges(); 
+                        }
+                    return new HttpResult(detalleTicketVal, HttpStatusCode.OK);
+                    }
+                    else
+                        return new HttpError(HttpStatusCode.BadRequest, "No se encontro");
+                //}
+                    
+             }
+            catch (SqlException ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,
+                   "Error obtener los datos" + ex.Message.ToString());
+            }
+        }
+
+
+        [HttpPost("ActualizarAsesoriaProcedimiento")]
+        public object ActualizarAsesoriaProcedimiento(DetalleAsesoriaRequest req)
+        {
+            try
+            {
                 var detalleTicket = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro == null).FirstOrDefault();
+               
                 if (detalleTicket != null)
                 {
+                    //actualizar el id registro anterior del nuevo IdDetalle que se creo al llamar la transferencia
+                    detalleTicket.IdRegistro = req.IdRegistro;
+                    _context.SaveChanges();
                     var idReg = new SqlParameter("@idRegistro", SqlDbType.NVarChar)
                     {
                         Value = req.IdRegistro
@@ -241,32 +305,12 @@ namespace WebTicket.Controllers
                         Value = detalleTicket.IdDetalleTicketAsesoria
                     };
                     var result = _context.Database.ExecuteSqlRaw($"EXECUTE [UAP].[ActualizarDetalle] @idRegistro,@idDetalle", idReg, idDet);
-                    //detalleTicket.MotivoAsistencia = req.MotivoAsistencia;
-                    //detalleTicket.IdRegistro = req.IdRegistro;
-                    //_context.SaveChanges();
+
                     return new HttpResult(detalleTicket, HttpStatusCode.OK);
                 }
                 else
                 {
-                    var detalleTicketVal = _context.DetalleTicketAsesoria.Where(x => x.IdOrden == req.IdOrden && x.IdRegistro != null).OrderByDescending(x => x.IdDetalleTicketAsesoria).FirstOrDefault();
-                    if (detalleTicketVal != null)
-                    {
-                        var idReg = new SqlParameter("@idRegistro", SqlDbType.NVarChar)
-                        {
-                            Value = req.IdRegistro
-                        };
-
-                        var idDet = new SqlParameter("@idDetalle", SqlDbType.NVarChar)
-                        {
-                            Value = detalleTicket.IdDetalleTicketAsesoria
-                        };
-                        var result = _context.Database.ExecuteSqlRaw($"EXECUTE [UAP].[ActualizarDetalle] @idRegistro,@idDetalle", idReg, idDet);
-                        //detalleTicketVal.MotivoAsistencia = req.MotivoAsistencia;
-                        //detalleTicketVal.IdRegistro = req.IdRegistro;
-                        //_context.SaveChanges();
-                        return new HttpResult(detalleTicketVal, HttpStatusCode.OK);
-                    }
-                    return new HttpResult(detalleTicket, HttpStatusCode.OK);
+                    return new HttpError(HttpStatusCode.BadRequest, "No se encontro");
                 }
             }
             catch (SqlException ex)
