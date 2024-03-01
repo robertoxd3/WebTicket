@@ -2,13 +2,18 @@
 
 namespace WebTicket.ViewModel
 {
-    [Table("ProgramarIndisponiblidad", Schema = "UAP")]
+    [Table("ProgramarIndisponibilidad", Schema = "UAP")]
     public class ProgramarIndisponibilidad
     {
-        public int? IdProgramarIndiponibilidad { get; set; }
+        public int? IdProgramarIndisponibilidad { get; set; }
         public int? IdEscritorio { get; set; }
+
+        public int? IdAccionPersonal { get; set; }
+
+        public string? CodigoUsuario { get; set; }
         public DateTime? FechaInicio { get; set; }
-        public int? HorasNoDisponible { get; set; }
+
+        public DateTime? FechaFin { get; set; }
 
         public string? Motivo { get; set; }
 

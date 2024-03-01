@@ -166,5 +166,11 @@ namespace WebTicket.Controllers
             return _tickets.ModificarProgramados(model);
         }
 
+        [HttpGet("ObtenerAccionPersonal")]
+        public object ObtenerAccionPersonal()
+        {
+            return _tickets.ObtenerAccionPersonal();
+        }
+
     }
 }

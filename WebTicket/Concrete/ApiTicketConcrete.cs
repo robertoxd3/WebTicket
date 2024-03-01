@@ -201,106 +201,123 @@ namespace WebTicket.Concrete
             {
                 return (false, "No Hay Ejecutivos configurados para esta unidad");
             }
-            if (countEjecutivos >= 2)
-            {
-                List<object> resulEjecutivosProgramados = new List<object>();
-                List<string> validarProgramados = new List<string>();
-                List<DateTime> fechasEjecutivo = new List<DateTime>();
-                DateTime fechaMenor = new DateTime(2050, 12, 31);
-                var banderaSinIndisponibilidad = 0;
-                foreach (var eje in ejecutivos)
-                {
-                    DateTime fechaHoy = DateTime.Now.Date;
-                    var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == eje.IdEscritorio && x.FechaInicio.Value.Date == fechaHoy).OrderByDescending(x => x.IdProgramarIndiponibilidad).FirstOrDefault();
-                    if (revisar != null)
-                    {
-                        DateTime fechaActual = revisar.FechaInicio.Value;
-                        //fechaActual = DateTime.Now;
-                        DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
-                        if (fechaActual.Date == revisar.FechaInicio?.Date)
-                        {
-                            DateTime nuevaFecha = fechaActual.AddHours((double)revisar.HorasNoDisponible);
-                            if (nuevaFecha > limite)
-                            {
-                                validarProgramados.Add("S");
-                                
-                                //return (false, "Hasta Mañana.");
-                            }
-                            else
-                            {
-                                validarProgramados.Add("N");
-                                fechasEjecutivo.Add(nuevaFecha);
-                                if(nuevaFecha<fechaMenor)
-                                    fechaMenor=nuevaFecha;
-                                // return (true, "" + nuevaFecha.ToString("HH:mm:ss"));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        banderaSinIndisponibilidad++;
-                    }
+            //if (countEjecutivos >= 2)
+            //{
+            //    List<object> resulEjecutivosProgramados = new List<object>();
+            //    List<string> validarProgramados = new List<string>();
+            //    List<DateTime> fechasEjecutivo = new List<DateTime>();
+            //    DateTime fechaMenor = new DateTime(2050, 12, 31);
+            //    var banderaSinIndisponibilidad = 0;
+            //    foreach (var eje in ejecutivos)
+            //    {
+            //        DateTime fechaHoy = DateTime.Now.Date;
+            //        var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == eje.IdEscritorio && x.FechaInicio.Value.Date == fechaHoy).OrderByDescending(x => x.IdProgramarIndisponibilidad).FirstOrDefault();
+            //        if (revisar != null)
+            //        {
+            //            DateTime fechaActual = revisar.FechaInicio.Value;
+            //            //fechaActual = DateTime.Now;
+            //            DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
+            //            if (fechaActual.Date == revisar.FechaInicio?.Date)
+            //            {
+            //                DateTime nuevaFecha = fechaActual.AddHours((double)revisar.HorasNoDisponible);
+            //                if (nuevaFecha > limite)
+            //                {
+            //                    validarProgramados.Add("S");
 
-                }
-                var contadorV = 0;
-                foreach (var v in validarProgramados)
-                {
-                    if(v=="S")
-                    {
-                       contadorV++;
-                    }
-                }
-                if (contadorV == ejecutivos.Count)
-                {
-                    return (false, "Hasta Mañana.");
-                }
-                else
-                {
-                    if (validarProgramados.Count == 0)
-                    {
-                        if (ejecutivos.Count > fechasEjecutivo.Count)
-                            return (true, "OK");
-                        else
-                            return (true, fechaMenor.ToString("HH:mm:ss"));
-                    }
-                    else
-                    {
-                        if(validarProgramados.Count>0 && fechasEjecutivo.Count==0)
-                            return (true, "OK");
-                        else if(banderaSinIndisponibilidad>0)
-                            return (true, "OK");
-                        else
-                            return (true, fechaMenor.ToString("HH:mm:ss"));
-                    }
-                }
-            }
-            else
-            {
+            //                    //return (false, "Hasta Mañana.");
+            //                }
+            //                else
+            //                {
+            //                    validarProgramados.Add("N");
+            //                    fechasEjecutivo.Add(nuevaFecha);
+            //                    if (nuevaFecha < fechaMenor)
+            //                        fechaMenor = nuevaFecha;
+            //                    // return (true, "" + nuevaFecha.ToString("HH:mm:ss"));
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            banderaSinIndisponibilidad++;
+            //        }
+
+            //    }
+            //    var contadorV = 0;
+            //    foreach (var v in validarProgramados)
+            //    {
+            //        if (v == "S")
+            //        {
+            //            contadorV++;
+            //        }
+            //    }
+            //    if (contadorV == ejecutivos.Count)
+            //    {
+            //        return (false, "Hasta Mañana.");
+            //    }
+            //    else
+            //    {
+            //        if (validarProgramados.Count == 0)
+            //        {
+            //            if (ejecutivos.Count > fechasEjecutivo.Count)
+            //                return (true, "OK");
+            //            else
+            //                return (true, fechaMenor.ToString("HH:mm:ss"));
+            //        }
+            //        else
+            //        {
+            //            if (validarProgramados.Count > 0 && fechasEjecutivo.Count == 0)
+            //                return (true, "OK");
+            //            else if (banderaSinIndisponibilidad > 0)
+            //                return (true, "OK");
+            //            else
+            //                return (true, fechaMenor.ToString("HH:mm:ss"));
+            //        }
+            //    }
+            //}
+            //else
+            //{
                 var ejecutivo = _context.Escritorio
                         .Where(e => e.CodigoUnidad == codigoUnidad && e.Disponibilidad == "S").First();
-                DateTime fechaHoy = DateTime.Now.Date;
-                var revisar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio && x.FechaInicio.Value.Date == fechaHoy).OrderByDescending(x=>x.IdProgramarIndiponibilidad).FirstOrDefault();
-                if (revisar!=null)
+                DateTime fechaHoy = DateTime.Now;
+
+                var revisar = _context.ProgramarIndisponibilidad.Where(p =>
+                    p.IdEscritorio == ejecutivo.IdEscritorio &&
+                    EF.Functions.DateDiffDay(p.FechaInicio.Value.Date, fechaHoy) == 0).FirstOrDefault();
+            //var revirsar = _context.ProgramarIndisponibilidad.Where(x => x.IdEscritorio == ejecutivo.IdEscritorio && x.FechaInicio.Value.Date == fechaHoy).OrderByDescending(x => x.IdProgramarIndisponibilidad).FirstOrDefault();
+                if (revisar != null)
                 {
                     DateTime fechaActual = revisar.FechaInicio.Value;
-                    DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
-                    if (fechaActual.Date == revisar.FechaInicio?.Date )
+                    DateTime fechaFin = revisar.FechaFin.Value;
+                    if (fechaHoy <= fechaActual && fechaHoy >= fechaFin)
                     {
-                        DateTime nuevaFecha = fechaActual.AddHours((double)revisar.HorasNoDisponible);
-                        if (nuevaFecha > limite)
+                        return (false, "No Disponible, Hasta "+fechaFin.Date);
+                    }
+                    DateTime limite = DateTime.Today.AddHours(15).AddMinutes(30);
+                    var restaFechas = limite - fechaHoy;
+                    int MinutosNoDisponible = Convert.ToInt16(restaFechas.TotalMinutes);
+                    
+                    if (fechaHoy.Date == revisar.FechaFin?.Date)
+                    {
+                        DateTime nuevaFecha = fechaHoy.AddMinutes(MinutosNoDisponible);
+                        if (fechaHoy > limite)
                         {
-                             
-                            return(false, "Hasta Mañana.");
+
+                            return (false, "Hasta Mañana.");
                         }
                         else
                         {
-                            return (true, ""+ nuevaFecha.ToString("HH:mm:ss"));
+                            return (true, "" + nuevaFecha.ToString("HH:mm:ss"));
                         }
+                     }
+                    else
+                    {
+                        return (true, "OK");
                     }
 
                 }
                 return (true, "OK");
-            }
+            //}
+          
         }
 
         public object ImprimirTicket(string codigoUnidad, int idFila, JsonModel json,string mensajeTiempo)
@@ -386,12 +403,14 @@ namespace WebTicket.Concrete
             try
             {
                 DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+                DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
 
                 ProgramarIndisponibilidad indisponibilidad = new ProgramarIndisponibilidad();
-                //indisponibilidad.IdProgramarIndiponibilidad = 1;
                 indisponibilidad.IdEscritorio = model.IdEscritorio;
+                indisponibilidad.IdAccionPersonal=model.IdAccionPersonal;
                 indisponibilidad.FechaInicio = currentTime;
-                indisponibilidad.HorasNoDisponible = model.HorasNoDisponible;
+                indisponibilidad.FechaFin = currentTimeEnd;
+                indisponibilidad.CodigoUsuario=model.CodigoUsuario;
                 indisponibilidad.Motivo = model.Motivo;
                 _context.ProgramarIndisponibilidad.Add(indisponibilidad);
                 return _context.SaveChanges() > 0 ? new HttpResult(true, HttpStatusCode.OK) : new HttpResult(false, HttpStatusCode.OK);
@@ -405,6 +424,20 @@ namespace WebTicket.Concrete
 
         }
 
+        public object ObtenerAccionPersonal()
+        {
+            try
+            {
+                var result = _context.AccionesPersonal.ToList();
+                return new HttpResult(result, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpError(HttpStatusCode.BadRequest, ex.Message);
+            }
+
+        }
+
         public object ObtenerProgramados(ProgramarIndisponibilidad model)
         {
            var result= _context.ProgramarIndisponibilidad.Where(x=>x.IdEscritorio==model.IdEscritorio).OrderByDescending(x=>x.FechaInicio).ToList();
@@ -415,12 +448,11 @@ namespace WebTicket.Concrete
         public object BorrarProgramados(ProgramarIndisponibilidad model)
         {
             ProgramarIndisponibilidad i = new ProgramarIndisponibilidad();
-            i.IdProgramarIndiponibilidad = model.IdProgramarIndiponibilidad;
+            i.IdProgramarIndisponibilidad = model.IdProgramarIndisponibilidad;
             i.IdEscritorio=model.IdEscritorio;
             i.FechaInicio=model.FechaInicio;
-            i.HorasNoDisponible=model.HorasNoDisponible;
 
-            var result = _context.ProgramarIndisponibilidad.Where(x => x.IdProgramarIndiponibilidad == model.IdProgramarIndiponibilidad).First();
+            var result = _context.ProgramarIndisponibilidad.Where(x => x.IdProgramarIndisponibilidad == model.IdProgramarIndisponibilidad).First();
             var res= _context.ProgramarIndisponibilidad.Remove(result);
 
             if(_context.SaveChanges() > 0)
@@ -432,9 +464,9 @@ namespace WebTicket.Concrete
                 return new HttpResult(res, HttpStatusCode.OK);
             }
 
-           // return  ? new HttpResult(res, HttpStatusCode.OK) : new HttpResult(res, HttpStatusCode.OK);
-
         }
+
+
 
         public object ModificarProgramados(ProgramarIndisponibilidad model)
         {
@@ -443,7 +475,9 @@ namespace WebTicket.Concrete
             {
 
                 DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+                DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
                 model.FechaInicio = currentTime;
+                model.FechaFin = currentTimeEnd;
                 var res = _context.ProgramarIndisponibilidad.Update(model);
                 if (_context.SaveChanges() > 0)
                 {

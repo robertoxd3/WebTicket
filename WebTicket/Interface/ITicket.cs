@@ -23,6 +23,7 @@ namespace WebTicket.Interface
         object BorrarProgramados(ProgramarIndisponibilidad model);
 
         object ModificarProgramados(ProgramarIndisponibilidad model);
+        object ObtenerAccionPersonal();
 
         (bool, string) validarDisponibilidad(string codigoUnidad);
 
