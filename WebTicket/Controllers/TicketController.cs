@@ -31,7 +31,6 @@ namespace WebTicket.Controllers
         public object GetUnidades()
         {
             string jsonConfiguracion = Request.Headers["Configuracion"];
-            //System.Diagnostics.Debug.WriteLine("Prueba 1: " + jsonConfiguracion);
 
             if (jsonConfiguracion != null)
             {
@@ -110,7 +109,6 @@ namespace WebTicket.Controllers
                 {
                     // Deserializar la cadena JSON
                     var configuracion = JsonConvert.DeserializeObject<JsonModel>(jsonConfiguracion);
-                  //  System.Diagnostics.Debug.WriteLine("Prueba 4: " + configuracion.config.codigoPad);
                     var results = _tickets.CrearTicket(modelTicket.codigoUnidad, modelTicket.idFila,configuracion);
                     return Ok(results);
                 }
@@ -135,6 +133,7 @@ namespace WebTicket.Controllers
             if (resp.Item2 != "OK" && resp.Item1 == true) 
             {
                 List<string> it = new List<string>();
+                //Letra V se utiliza en el frontEnd para validar estados.
                 it.Add("V");
                 it.Add(resp.Item2);
                 return new HttpResult(it, HttpStatusCode.OK);
