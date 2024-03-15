@@ -413,15 +413,29 @@ namespace WebTicket.Concrete
                 DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
                 DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
 
+                var result = _context.Database.ExecuteSql($"DISABLE TRIGGER [UAP].[ADD_CodigoUsuarioEscritorio] ON [UAP].[ProgramarIndisponibilidad]");
+
                 ProgramarIndisponibilidad indisponibilidad = new ProgramarIndisponibilidad();
                 indisponibilidad.IdEscritorio = model.IdEscritorio;
                 indisponibilidad.IdAccionPersonal=model.IdAccionPersonal;
                 indisponibilidad.FechaInicio = currentTime;
                 indisponibilidad.FechaFin = currentTimeEnd;
                 indisponibilidad.CodigoUsuario=model.CodigoUsuario;
+                indisponibilidad.CodigoUsuarioEscritorio = model.CodigoUsuario;
                 indisponibilidad.Motivo = model.Motivo;
                 _context.ProgramarIndisponibilidad.Add(indisponibilidad);
-                return _context.SaveChanges() > 0 ? new HttpResult(true, HttpStatusCode.OK) : new HttpResult(false, HttpStatusCode.OK);
+
+                if (_context.SaveChanges() > 0)
+                {
+                    var result2 = _context.Database.ExecuteSql($"ENABLE TRIGGER [UAP].[ADD_CodigoUsuarioEscritorio] ON [UAP].[ProgramarIndisponibilidad]");
+                    return new HttpResult(true, HttpStatusCode.OK);
+                }
+                else
+                {
+                    var result2 = _context.Database.ExecuteSql($"ENABLE TRIGGER [UAP].[ADD_CodigoUsuarioEscritorio] ON [UAP].[ProgramarIndisponibilidad]");
+                    return new HttpResult("Error al programar la indisponibilidad", HttpStatusCode.BadRequest);
+                }
+
             }
             catch (Exception ex)
             {

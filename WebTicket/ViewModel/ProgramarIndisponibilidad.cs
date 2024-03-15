@@ -11,6 +11,8 @@ namespace WebTicket.ViewModel
         public int? IdAccionPersonal { get; set; }
 
         public string? CodigoUsuario { get; set; }
+
+        public string? CodigoUsuarioEscritorio { get; set; }
         public DateTime? FechaInicio { get; set; }
 
         public DateTime? FechaFin { get; set; }
