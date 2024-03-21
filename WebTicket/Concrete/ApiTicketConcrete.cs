@@ -410,8 +410,8 @@ namespace WebTicket.Concrete
         {
             try
             {
-                DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
-                DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+                DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
+                DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
 
                 var result = _context.Database.ExecuteSql($"DISABLE TRIGGER [UAP].[ADD_CodigoUsuarioEscritorio] ON [UAP].[ProgramarIndisponibilidad]");
 
@@ -496,8 +496,8 @@ namespace WebTicket.Concrete
             try
             {
 
-                DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
-                DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+                DateTime currentTime = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaInicio), TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
+                DateTime currentTimeEnd = TimeZoneInfo.ConvertTime((DateTime)(model?.FechaFin), TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
                 model.FechaInicio = currentTime;
                 model.FechaFin = currentTimeEnd;
                 var res = _context.ProgramarIndisponibilidad.Update(model);
